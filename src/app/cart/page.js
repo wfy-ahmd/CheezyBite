@@ -1,12 +1,41 @@
 'use client';
 
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { CartContext } from '../context/CartContext';
 import CartItem from '../components/CartItem';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function CartPage() {
     const { cart, cartTotal, isOpen, setIsOpen } = useContext(CartContext);
+
+    // Coupon State
+    const [couponCode, setCouponCode] = useState('');
+    const [discount, setDiscount] = useState(0);
+    const [isApplied, setIsApplied] = useState(false);
+
+    const handleApplyCoupon = () => {
+        if (!couponCode) return;
+
+        if (couponCode === 'CHEEZY50') {
+            // 50% off up to 800
+            const calculatedDiscount = Math.min(cartTotal * 0.5, 800);
+            setDiscount(calculatedDiscount);
+            setIsApplied(true);
+            toast.success('🔥 Coupon CHEEZY50 applied!');
+        } else {
+            toast.error('Invalid Coupon Code');
+            setDiscount(0);
+            setIsApplied(false);
+        }
+    };
+
+    const handleRemoveCoupon = () => {
+        setDiscount(0);
+        setIsApplied(false);
+        setCouponCode('');
+        toast.success('Coupon removed');
+    };
 
     if (cart.length === 0) {
         return (
@@ -38,7 +67,7 @@ export default function CartPage() {
                 <div className="lg:col-span-1">
                     <div className="bg-softBlack sticky top-24 rounded-2xl p-6 border border-cardBorder shadow-xl">
                         <h3 className="text-2xl font-bold text-ashWhite mb-6">Order Summary</h3>
-                        <div className="flex justify-between items-center mb-6 text-lg text-ashWhite/80">
+                        <div className="flex justify-between items-center mb-4 text-lg text-ashWhite/80">
                             <span>Subtotal</span>
                             <span className="font-semibold text-ashWhite">Rs. {parseFloat(cartTotal).toLocaleString()}</span>
                         </div>
@@ -47,16 +76,38 @@ export default function CartPage() {
                             <span className="font-semibold text-secondary">Free</span>
                         </div>
 
-                        {/* Promo Code */}
+                        {/* Promo Code Logic */}
                         <div className="mb-6">
                             <label className="text-sm text-ashWhite/60 mb-2 block">Promo Code</label>
                             <div className="flex gap-2">
-                                <input type="text" placeholder="Enter code" className="input w-full p-2 text-sm bg-charcoalBlack border border-cardBorder rounded-lg text-ashWhite focus:border-primary outline-none" />
-                                <button className="bg-ashWhite/10 hover:bg-ashWhite/20 text-ashWhite px-4 py-2 rounded-lg text-sm font-bold transition-colors">
-                                    Apply
-                                </button>
+                                <input
+                                    type="text"
+                                    placeholder="Enter code"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                    disabled={isApplied}
+                                    className={`input w-full p-2 text-sm bg-charcoalBlack border ${isApplied ? 'border-green-500 text-green-500' : 'border-cardBorder'} rounded-lg text-ashWhite focus:border-primary outline-none transition-colors`}
+                                />
+                                {isApplied ? (
+                                    <button onClick={handleRemoveCoupon} className="bg-red-500/10 hover:bg-red-500/20 text-red-500 px-4 py-2 rounded-lg text-sm font-bold transition-colors">
+                                        Remove
+                                    </button>
+                                ) : (
+                                    <button onClick={handleApplyCoupon} className="bg-ashWhite/10 hover:bg-ashWhite/20 text-ashWhite px-4 py-2 rounded-lg text-sm font-bold transition-colors">
+                                        Apply
+                                    </button>
+                                )}
                             </div>
+                            {isApplied && <p className="text-green-500 text-xs mt-2 font-bold">Coupon Applied! You saved Rs. {discount.toLocaleString()}</p>}
                         </div>
+
+                        {/* Discount Row */}
+                        {isApplied && (
+                            <div className="flex justify-between items-center mb-4 text-lg text-green-500 animate-pulse">
+                                <span>Discount (CHEEZY50)</span>
+                                <span className="font-bold">- Rs. {discount.toLocaleString()}</span>
+                            </div>
+                        )}
 
                         {/* ETA */}
                         <div className="bg-charcoalBlack p-3 rounded-lg mb-6 flex items-center gap-3 border border-cardBorder">
@@ -70,9 +121,12 @@ export default function CartPage() {
                         </div>
 
                         <div className="border-t border-cardBorder my-4"></div>
-                        <div className="flex justify-between items-center mb-8 text-2xl font-bold text-ashWhite">
-                            <span>Total</span>
-                            <span>Rs. {parseFloat(cartTotal).toLocaleString()}</span>
+                        <div className="flex justify-between items-center mb-8">
+                            <span className="text-2xl font-bold text-ashWhite">Total</span>
+                            <div className="text-right">
+                                {isApplied && <span className="block text-sm text-ashWhite/40 line-through">Rs. {parseFloat(cartTotal).toLocaleString()}</span>}
+                                <span className="text-2xl font-bold text-ashWhite">Rs. {(parseFloat(cartTotal) - discount).toLocaleString()}</span>
+                            </div>
                         </div>
 
                         <Link href="/checkout" className="w-full block text-center btn btn-lg bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-1">
