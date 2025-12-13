@@ -21,24 +21,40 @@ const CartBottom = () => {
 
   return (
     <>
-      {cart.length >= 1 ? (
-        <div className="px-6 py-3 lg:py-6 mt-auto">
-          <div className="flex items-center justify-between mb-6 text-lg font-bold font-robotoCondensed text-ashWhite">
-            <div>Total:</div>
-            <div>Rs. {parseFloat(cartTotal).toLocaleString()}</div>
-          </div>
-          <div className="flex flex-col gap-y-3">
+      {cart.length >= 0 && (
+        <div className="p-6 bg-charcoalBlack border-t border-white/10 mt-auto">
+          {cart.length > 0 ? (
+            <>
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-ashWhite/60 text-sm">
+                  <span>Subtotal</span>
+                  <span>Rs. {parseFloat(cartTotal).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-ashWhite/60 text-sm">
+                  <span>Delivery Fee</span>
+                  <span>Rs. 350</span>
+                </div>
+                <div className="flex justify-between text-white font-bold text-lg pt-4 border-t border-white/10">
+                  <span>Total</span>
+                  <span className="text-primary">Rs. {(parseFloat(cartTotal) + 350).toLocaleString()}</span>
+                </div>
+              </div>
+              <button
+                onClick={handleCheckout}
+                className="w-full bg-primary hover:bg-primaryHover text-white font-bold py-4 rounded-xl shadow-lg hover:translate-y-[-2px] transition-all flex justify-between px-6"
+              >
+                <span>Checkout</span>
+                <span>Rs. {(parseFloat(cartTotal) + 350).toLocaleString()}</span>
+              </button>
+            </>
+          ) : (
             <button
-              onClick={handleCheckout}
-              className="btn btn-lg bg-gradient-to-r from-primary to-secondary w-full flex justify-center text-white shadow-lg hover:shadow-primary/20"
+              disabled
+              className="w-full bg-white/5 text-white/40 font-bold py-4 rounded-xl cursor-not-allowed"
             >
-              Checkout
+              Cart is empty
             </button>
-          </div>
-        </div>
-      ) : (
-        <div className="absolute top-0 w-full h-full flex justify-center items-center -z-10">
-          <div className="font-semibold text-ashWhite/60">Your cart is empty</div>
+          )}
         </div>
       )}
 

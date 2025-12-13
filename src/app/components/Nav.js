@@ -106,19 +106,7 @@ const Nav = () => {
               </button>
             )}
 
-            {/* Cart Icon */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className={`relative p-2 rounded-full hover:bg-white/10 transition-all duration-200 text-ashWhite group ${cartBounce ? "animate-bounce-once" : ""}`}
-              aria-label="Shopping cart"
-            >
-              <ShoppingBag className="w-6 h-6 group-hover:text-secondary transition-colors" />
-              {itemAmount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-secondary text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-charcoalBlack">
-                  {itemAmount}
-                </span>
-              )}
-            </button>
+            {/* Cart Icon Removed - Replaced by SmartCart Pill */}
           </div>
         </div>
 

@@ -1,6 +1,4 @@
-import CartDesktop from '../components/CartDesktop';
-import CartMobile from '../components/CartMobile';
-import CartMobileIcon from '../components/CartMobileIcon';
+import SmartCart from '../components/SmartCart';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 import CartProvider from '../context/CartContext';
@@ -17,10 +15,8 @@ export default function ShopLayout({ children }) {
                     <ClientCleanup />
                     <GlobalEditModal />
                     <Nav />
-                    <CartMobileIcon />
-                    <CartMobile />
                     {children}
-                    <CartDesktop />
+                    <SmartCart />
                     <Footer />
                 </OrderProvider>
             </UserProvider>
