@@ -138,9 +138,9 @@ export const HowItWorks = () => {
 // 5. Social Proof (Reviews)
 export const SocialProof = () => {
     const reviews = [
-        { name: "Sarah M.", role: "Foodie", text: "Best pizza in Colombo! The crust is perfection.", rating: 5 },
-        { name: "John D.", role: "Regular", text: "Delivery was super fast. Pizza arrived hot.", rating: 5 },
-        { name: "Amara P.", role: "Customer", text: "Love the spicy chicken option. Highly recommended!", rating: 4 },
+        { name: "Ruwan Perera", role: "Pizza Lover", text: "Best pizza in Colombo! The crust is perfection.", rating: 5 },
+        { name: "Fatima Rimzan", role: "Verified Buyer", text: "Delivery was super fast. Pizza arrived hot.", rating: 5 },
+        { name: "S. Mahendran", role: "Regular Customer", text: "Love the spicy chicken option. Highly recommended!", rating: 5 },
     ];
 
     return (
