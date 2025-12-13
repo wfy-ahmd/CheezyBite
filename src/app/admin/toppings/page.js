@@ -2,7 +2,7 @@
 
 import { useAdmin } from '../../context/AdminContext';
 import { useState } from 'react';
-import { Plus, Pencil, ToggleLeft, ToggleRight, X, Flame, Leaf, Pizza, Drumstick, CircleDot, CheckCircle, Ban } from 'lucide-react';
+import { Plus, Pencil, ToggleLeft, ToggleRight, X, Flame, Leaf, Pizza, Drumstick, CircleDot, CheckCircle, Ban, Cherry, Wheat, Fish } from 'lucide-react';
 import AdminCard from '../../components/admin/AdminCard';
 
 export default function ToppingsPage() {
@@ -26,10 +26,23 @@ export default function ToppingsPage() {
     // Helper to determine icon based on name/type
     const getToppingIcon = (name) => {
         const lower = name.toLowerCase();
-        if (lower.includes('chicken') || lower.includes('beef') || lower.includes('meat') || lower.includes('sausage')) return Drumstick;
-        if (lower.includes('pepper') || lower.includes('chilli') || lower.includes('jalapeno') || lower.includes('spicy')) return Flame;
-        if (lower.includes('cheese') || lower.includes('paneer') || lower.includes('mozzarella')) return Pizza;
-        if (lower.includes('corn') || lower.includes('tomato') || lower.includes('mushroom') || lower.includes('olive') || lower.includes('onion')) return Leaf;
+        // Meat / Seafood
+        if (lower.includes('chicken') || lower.includes('sausage') || lower.includes('meat') || lower.includes('beef') || lower.includes('ham') || lower.includes('bacon')) return Drumstick;
+        if (lower.includes('tuna') || lower.includes('fish') || lower.includes('prawn') || lower.includes('seafood') || lower.includes('shrimp')) return Fish;
+
+        // Spicy
+        if (lower.includes('pepper') || lower.includes('chilli') || lower.includes('jalapeno') || lower.includes('spicy') || lower.includes('paprika')) return Flame;
+
+        // Cheese
+        if (lower.includes('cheese') || lower.includes('paneer') || lower.includes('mozzarella') || lower.includes('parmesan') || lower.includes('cheddar')) return Pizza;
+
+        // Veg Specific
+        if (lower.includes('tomato') || lower.includes('cherry')) return Cherry;
+        if (lower.includes('corn') || lower.includes('wheat') || lower.includes('grain')) return Wheat;
+
+        // Generic Veg
+        if (lower.includes('mushroom') || lower.includes('olive') || lower.includes('onion') || lower.includes('veg') || lower.includes('spinach') || lower.includes('basil')) return Leaf;
+
         return CircleDot;
     };
 
@@ -99,8 +112,8 @@ export default function ToppingsPage() {
                                     <button
                                         onClick={() => toggleToppingEnabled(topping.id)}
                                         className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors ${topping.enabled
-                                                ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                                                : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                                            ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                                            : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                                             }`}
                                     >
                                         {topping.enabled ? <CheckCircle className="w-4 h-4" /> : <Ban className="w-4 h-4" />}

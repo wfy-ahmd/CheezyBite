@@ -62,7 +62,20 @@ export function loadPizzas() {
             savePizzas(DEFAULT_PIZZAS);
             return DEFAULT_PIZZAS;
         }
-        return JSON.parse(data);
+        const parsed = JSON.parse(data);
+
+        // Auto-fix: If we have old data (less than 25 items) or wrong images, force update
+        // We know we want 25 specific items. If user has 'Capricciosa' with 'webp', it's old.
+        // Old data had 10 items. New has 25.
+        const isOldData = parsed.length < 25 || parsed.some(p => p.image.includes('.webp'));
+
+        if (isOldData) {
+            console.log('Detected old pizza data, migrating to new defaults...');
+            savePizzas(DEFAULT_PIZZAS);
+            return DEFAULT_PIZZAS;
+        }
+
+        return parsed;
     } catch (error) {
         console.error('Failed to load pizzas:', error);
         return DEFAULT_PIZZAS;

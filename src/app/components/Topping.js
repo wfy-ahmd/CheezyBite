@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Check, CircleDot, Bean, Leaf, Flame, Pizza, Drumstick } from 'lucide-react';
+import { Check, CircleDot, Bean, Leaf, Flame, Pizza, Drumstick, Cherry, Wheat, Fish } from 'lucide-react';
 
 const Topping = ({ topping, additionalTopping, setAdditionalTopping }) => {
   const [isChecked, setIsChecked] = useState(false);
@@ -22,10 +22,23 @@ const Topping = ({ topping, additionalTopping, setAdditionalTopping }) => {
 
   const getToppingIcon = (name) => {
     const lower = name.toLowerCase();
-    if (lower.includes('chicken') || lower.includes('beef') || lower.includes('meat') || lower.includes('sausage')) return Drumstick;
-    if (lower.includes('pepper') || lower.includes('chilli') || lower.includes('jalapeno') || lower.includes('spicy')) return Flame;
-    if (lower.includes('cheese') || lower.includes('paneer') || lower.includes('mozzarella')) return Pizza;
-    if (lower.includes('corn') || lower.includes('tomato') || lower.includes('mushroom') || lower.includes('olive') || lower.includes('onion')) return Leaf;
+    // Meat / Seafood
+    if (lower.includes('chicken') || lower.includes('sausage') || lower.includes('meat') || lower.includes('beef') || lower.includes('ham') || lower.includes('bacon')) return Drumstick;
+    if (lower.includes('tuna') || lower.includes('fish') || lower.includes('prawn') || lower.includes('seafood') || lower.includes('shrimp')) return Fish;
+
+    // Spicy
+    if (lower.includes('pepper') || lower.includes('chilli') || lower.includes('jalapeno') || lower.includes('spicy') || lower.includes('paprika')) return Flame;
+
+    // Cheese
+    if (lower.includes('cheese') || lower.includes('paneer') || lower.includes('mozzarella') || lower.includes('parmesan') || lower.includes('cheddar')) return Pizza;
+
+    // Veg Specific
+    if (lower.includes('tomato') || lower.includes('cherry')) return Cherry;
+    if (lower.includes('corn') || lower.includes('wheat') || lower.includes('grain')) return Wheat;
+
+    // Generic Veg
+    if (lower.includes('mushroom') || lower.includes('olive') || lower.includes('onion') || lower.includes('veg') || lower.includes('spinach') || lower.includes('basil')) return Leaf;
+
     return CircleDot;
   };
 
@@ -35,8 +48,8 @@ const Topping = ({ topping, additionalTopping, setAdditionalTopping }) => {
     <div
       onClick={handleCheckBox}
       className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all mb-2 ${isChecked
-        ? 'bg-softBlack border-primary'
-        : 'bg-transparent border-white/5 hover:bg-white/5'
+          ? 'bg-softBlack border-primary'
+          : 'bg-transparent border-white/5 hover:bg-white/5'
         }`}
     >
       <div className="flex items-center gap-3">

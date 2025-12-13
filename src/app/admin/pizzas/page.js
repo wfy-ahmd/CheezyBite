@@ -15,9 +15,9 @@ export default function PizzasPage() {
         name: '',
         description: '',
         image: '/pizzas/pizza1.jpg',
-        priceSm: 9.99,
-        priceMd: 10.99,
-        priceLg: 11.99,
+        priceSm: 1200,
+        priceMd: 1600,
+        priceLg: 2200,
     });
 
     const availableImages = Array.from({ length: 25 }, (_, i) => `/pizzas/pizza${i + 1}.jpg`);
@@ -28,9 +28,9 @@ export default function PizzasPage() {
             name: '',
             description: '',
             image: '/pizzas/pizza1.jpg',
-            priceSm: 9.99,
-            priceMd: 10.99,
-            priceLg: 11.99,
+            priceSm: 1200,
+            priceMd: 1600,
+            priceLg: 2200,
         });
         setIsModalOpen(true);
     };
@@ -65,13 +65,26 @@ export default function PizzasPage() {
                     <h1 className="text-2xl font-bold text-white">Pizza Management</h1>
                     <p className="text-gray-400">Manage your pizza menu</p>
                 </div>
-                <button
-                    onClick={openAddModal}
-                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Pizza
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => {
+                            if (confirm('This will reset all pizzas to the default 25 items from the user menu. Continue?')) {
+                                localStorage.removeItem('cheezybite_admin_pizzas');
+                                window.location.reload();
+                            }
+                        }}
+                        className="inline-flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors border border-gray-600"
+                    >
+                        Reset Data
+                    </button>
+                    <button
+                        onClick={openAddModal}
+                        className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Pizza
+                    </button>
+                </div>
             </div>
 
             {/* Pizza Grid */}
@@ -104,15 +117,15 @@ export default function PizzasPage() {
                         <div className="flex gap-2 mb-4 bg-black/20 p-2 rounded-lg justify-between">
                             <div className="flex flex-col items-center">
                                 <span className="text-xs text-gray-400">Small</span>
-                                <span className="text-white font-bold">${pizza.priceSm}</span>
+                                <span className="text-white font-bold">Rs. {pizza.priceSm}</span>
                             </div>
                             <div className="flex flex-col items-center border-l border-white/10 pl-2">
                                 <span className="text-xs text-gray-400">Medium</span>
-                                <span className="text-white font-bold">${pizza.priceMd}</span>
+                                <span className="text-white font-bold">Rs. {pizza.priceMd}</span>
                             </div>
                             <div className="flex flex-col items-center border-l border-white/10 pl-2">
                                 <span className="text-xs text-gray-400">Large</span>
-                                <span className="text-white font-bold">${pizza.priceLg}</span>
+                                <span className="text-white font-bold">Rs. {pizza.priceLg}</span>
                             </div>
                         </div>
 
@@ -181,22 +194,35 @@ export default function PizzasPage() {
                             </div>
                             <div>
                                 <label className="block text-gray-400 text-sm mb-1">Image</label>
-                                <select
-                                    value={formData.image}
-                                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                                >
-                                    {availableImages.map(img => (
-                                        <option key={img} value={img}>{img.split('/').pop()}</option>
-                                    ))}
-                                </select>
+                                <div className="flex items-center gap-4">
+                                    <div className="relative w-20 h-20 bg-gray-700 rounded-lg overflow-hidden border border-gray-600 flex-shrink-0">
+                                        <Image
+                                            src={formData.image}
+                                            alt="Preview"
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <select
+                                            value={formData.image}
+                                            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                                            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                                        >
+                                            {availableImages.map(img => (
+                                                <option key={img} value={img}>{img.split('/').pop()}</option>
+                                            ))}
+                                        </select>
+                                        <p className="text-xs text-gray-500 mt-1">Select from {availableImages.length} available presets</p>
+                                    </div>
+                                </div>
                             </div>
                             <div className="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-1">Small $</label>
+                                    <label className="block text-gray-400 text-sm mb-1">Small (Rs.)</label>
                                     <input
                                         type="number"
-                                        step="0.01"
+                                        step="1"
                                         value={formData.priceSm}
                                         onChange={(e) => setFormData({ ...formData, priceSm: parseFloat(e.target.value) })}
                                         className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
@@ -204,10 +230,10 @@ export default function PizzasPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-1">Medium $</label>
+                                    <label className="block text-gray-400 text-sm mb-1">Medium (Rs.)</label>
                                     <input
                                         type="number"
-                                        step="0.01"
+                                        step="1"
                                         value={formData.priceMd}
                                         onChange={(e) => setFormData({ ...formData, priceMd: parseFloat(e.target.value) })}
                                         className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
@@ -215,10 +241,10 @@ export default function PizzasPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-1">Large $</label>
+                                    <label className="block text-gray-400 text-sm mb-1">Large (Rs.)</label>
                                     <input
                                         type="number"
-                                        step="0.01"
+                                        step="1"
                                         value={formData.priceLg}
                                         onChange={(e) => setFormData({ ...formData, priceLg: parseFloat(e.target.value) })}
                                         className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
