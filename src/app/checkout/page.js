@@ -53,25 +53,6 @@ const CheckoutPage = () => {
         setNewAddress({ ...newAddress, street: '', city: '', area: '' });
     };
 
-    const handlePlaceOrder = () => {
-        if (!selectedAddressId) {
-            toast.error("Please select a delivery address");
-            return;
-        }
-
-        const deliveryAddress = user.addresses.find(a => a.id === selectedAddressId);
-
-        // Create Order via Context
-        createOrder(cart, cartTotal, {
-            address: deliveryAddress,
-            paymentMethod,
-            deliveryTime
-        });
-
-        // Clear Cart & Show Success
-        clearCart();
-        setSuccess(true);
-    };
 
     if (cart.length === 0 && !success) {
         return (
@@ -244,12 +225,13 @@ const CheckoutPage = () => {
                         </div>
                     </div>
 
+                    {/* Payment Method */}
                     <div className="bg-charcoalBlack rounded-2xl p-6 border border-cardBorder">
                         <div className="flex items-center gap-3 mb-6">
                             <CreditCard className="text-primary w-6 h-6" />
                             <h2 className="text-xl font-bold text-ashWhite">Payment Method</h2>
                         </div>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-3 gap-4 mb-6">
                             <label className={`cursor-pointer border p-4 rounded-xl flex flex-col items-center justify-center gap-2 font-bold transition-all ${paymentMethod === 'card' ? 'border-primary bg-primary/10 text-ashWhite' : 'border-cardBorder bg-softBlack text-ashWhite/60'}`}>
                                 <input type="radio" name="payment" className="hidden" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} />
                                 <CreditCard className="w-6 h-6" />
@@ -266,7 +248,21 @@ const CheckoutPage = () => {
                                 <span className="text-sm">Wallet</span>
                             </label>
                         </div>
+
+                        {/* Secured Card Form */}
+                        {paymentMethod === 'card' && (
+                            <CreditCardForm cardData={cardData} setCardData={setCardData} errors={cardErrors} />
+                        )}
+
+                        {/* COD Info */}
+                        {paymentMethod === 'cash' && (
+                            <div className="bg-softBlack/50 p-4 rounded-xl text-sm text-ashWhite/70 border border-white/5 flex items-center gap-3">
+                                <span className="text-xl">ℹ️</span>
+                                Phone verification required. Please ensure your contact details are correct.
+                            </div>
+                        )}
                     </div>
+
 
                 </div>
 
@@ -311,10 +307,20 @@ const CheckoutPage = () => {
 
                         <button
                             onClick={handlePlaceOrder}
-                            className="w-full btn btn-lg bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                            disabled={isProcessing}
+                            className={`w-full btn btn-lg text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 ${isProcessing ? 'bg-softBlack border border-cardBorder' : 'bg-gradient-to-r from-primary to-secondary hover:shadow-primary/20 transform hover:-translate-y-1'}`}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                            Pay & Place Order
+                            {isProcessing ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Processing...
+                                </>
+                            ) : (
+                                <>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                                    Pay & Place Order
+                                </>
+                            )}
                         </button>
                         <div className="flex items-center justify-center gap-2 mt-4 text-xs text-ashWhite/50">
                             <Truck className="w-3 h-3" />
