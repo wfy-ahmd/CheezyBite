@@ -66,20 +66,16 @@ const CreditCardForm = ({ cardData, setCardData, errors, touched, handleBlur }) 
         <div className="space-y-6 pt-10">
             {/* Live Virtual Card Preview */}
 
+            {/* Live Virtual Card Preview - Moved to Top */}
+            <VirtualCard cardData={cardData} isFlipped={isFlipped} />
+
+            <div className="flex items-center gap-2 mb-4 pl-1">
+                <Lock className="w-3 h-3 text-ashWhite/60" />
+                <span className="text-xs font-medium text-ashWhite/60 tracking-wide">Secure card payment</span>
+            </div>
 
             <div className="bg-gradient-to-br from-charcoalBlack to-softBlack p-6 rounded-2xl border border-white/5 shadow-2xl animate-in fade-in zoom-in-95 duration-300 relative z-10">
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                            <CreditCard className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="font-bold text-ashWhite text-sm">Secure Payment</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-1 rounded-full border border-green-500/20">
-                        <Lock className="w-3 h-3" />
-                        256-BIT ENCRYPTED
-                    </div>
-                </div>
+                {/* 256-bit badge removed as per request */}
 
                 <div className="space-y-4">
                     <InputField
@@ -150,8 +146,6 @@ const CreditCardForm = ({ cardData, setCardData, errors, touched, handleBlur }) 
                     onFocus={() => setIsFlipped(false)}
                 />
             </div>
-            {/* Live Virtual Card Preview - Moved Below */}
-            <VirtualCard cardData={cardData} isFlipped={isFlipped} />
         </div>
 
     );

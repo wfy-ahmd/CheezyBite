@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 
 const VirtualCard = ({ cardData, isFlipped }) => {
-    const { number, name, expiry, cvv } = cardData;
+    const { number, name, expiry } = cardData;
 
     // Brand Detection
     const brand = useMemo(() => {
         if (number.startsWith('4')) return 'VISA';
         if (number.startsWith('5')) return 'MASTERCARD';
-        return 'BANK';
+        return 'VISA'; // Default to Visa for aesthetic if unknown
     }, [number]);
 
     // Format Masked Number for Display
@@ -15,10 +15,10 @@ const VirtualCard = ({ cardData, isFlipped }) => {
         const raw = number.replace(/\D/g, '');
         let formatted = '';
         for (let i = 0; i < 16; i++) {
-            if (i > 0 && i % 4 === 0) formatted += ' ';
+            if (i > 0 && i % 4 === 0) formatted += '  '; // Double space for wide tracking
             if (i < raw.length) {
                 // Mask middle digits: 0-4 visible, 5-11 masked, 12-15 visible
-                if (i >= 4 && i < 12) formatted += '*'; // Use asterisk or bullet for cleaner look
+                if (i >= 4 && i < 12) formatted += '•'; // Use bullet
                 else formatted += raw[i];
             } else {
                 formatted += '•'; // Middle dot for placeholders
@@ -28,79 +28,68 @@ const VirtualCard = ({ cardData, isFlipped }) => {
     }, [number]);
 
     return (
-        <div className="relative w-full h-[180px] perspective-1000 mt-8">
-            <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+        <div className={`w-full max-w-[380px] mx-auto h-[220px] md:h-[200px] rounded-[24px] relative overflow-hidden transition-all duration-300 mb-6 shadow-2xl group ${isFlipped ? 'blur-sm opacity-80' : ''}`}>
+            {/* 1. Base Dark Gradient (Deep Atmosphere) */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#0d0d0d] to-black z-0"></div>
 
-                {/* FRONT */}
-                <div
-                    className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden border border-white/5 bg-[#0B0B0B] shadow-2xl"
-                    style={{ backfaceVisibility: 'hidden' }}
-                >
-                    {/* Subtle Gradient Shine */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+            {/* 2. The "Glass" Layer (Orange Glow + Blur) */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute -top-[50%] -left-[50%] w-[130%] h-[130%] bg-orange-600/30 blur-[80px] rounded-full mix-blend-screen animate-pulse-slow"></div>
+                <div className="absolute -bottom-[50%] -right-[50%] w-[130%] h-[130%] bg-primary/20 blur-[80px] rounded-full mix-blend-screen"></div>
+            </div>
 
-                    <div className="relative p-6 h-full flex flex-col justify-between z-10">
-                        {/* Top Row: Chip & Brand */}
-                        <div className="flex justify-between items-start">
-                            {/* Chip */}
-                            <div className="w-12 h-9 bg-gradient-to-br from-[#d4af37] to-[#aa8c2c] rounded-md border border-white/10 relative overflow-hidden shadow-sm">
-                                <div className="absolute inset-0 border border-black/10 rounded-md"></div>
-                                <div className="absolute top-1/2 w-full h-[1px] bg-black/10"></div>
-                                <div className="absolute left-1/2 h-full w-[1px] bg-black/10"></div>
-                            </div>
+            {/* 3. Glass Surface Texture & Border */}
+            <div className="absolute inset-0 z-0 backdrop-blur-[2px] bg-white/5 border border-white/10 rounded-[24px]"></div>
 
-                            {/* Brand Logo */}
-                            <div>
-                                {brand === 'VISA' && <span className="text-white font-serif font-black italic text-2xl tracking-tighter opacity-90">VISA</span>}
-                                {brand === 'MASTERCARD' && (
-                                    <div className="flex items-center relative w-10">
-                                        <div className="w-8 h-8 bg-[#EB001B] rounded-full opacity-90 relative z-10"></div>
-                                        <div className="w-8 h-8 bg-[#F79E1B] rounded-full -ml-4 opacity-90 relative z-20 mix-blend-screen"></div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+            {/* 4. Glossy Shine (Top-Left) */}
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent opacity-50 z-0 pointer-events-none"></div>
 
-                        {/* Middle: Number */}
-                        <div className="mt-4">
-                            <div className="text-xl font-mono text-ashWhite tracking-[0.14em] drop-shadow-sm truncate">
-                                {displayedNumber}
-                            </div>
-                        </div>
+            <div className="relative p-6 h-full flex flex-col justify-between z-10">
+                {/* Top Row: Logo & Contactless */}
+                <div className="flex justify-between items-start">
+                    <span className="font-bold text-ashWhite tracking-widest text-xs opacity-80 drop-shadow-md">CHEEZYBITE</span>
+                    <svg className="w-6 h-6 text-white/50" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="none" />
+                        <path d="M12 4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z" opacity=".3" />
+                        {/* Simple "Wifi" waves shape for contactless feel */}
+                        <path d="M12 6c3.31 0 6 2.69 6 6 0 1.33-.42 2.55-1.12 3.56l1.43 1.43C19.39 15.65 20 13.91 20 12c0-4.42-3.58-8-8-8s-8 3.58-8 8c0 1.91.61 3.65 1.69 4.99l1.43-1.43C6.42 14.55 6 13.33 6 12c0-3.31 2.69-6 6-6z" />
+                    </svg>
+                </div>
 
-                        {/* Bottom: Name & Date */}
-                        <div className="flex justify-between items-end">
-                            <div className="text-sm font-bold text-ashWhite uppercase tracking-widest opacity-80 truncate max-w-[200px]">
-                                {name || 'YOUR NAME'}
-                            </div>
-                            <div className="text-sm font-mono text-ashWhite tracking-widest opacity-80">
-                                {expiry || 'MM/YY'}
-                            </div>
-                        </div>
+                {/* Middle: Number (Glass Text Effect) */}
+                <div className="flex flex-col justify-center h-full pl-1">
+                    <div className="text-[22px] md:text-[24px] font-mono text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/70 tracking-[0.14em] drop-shadow-lg filter whitespace-nowrap">
+                        {displayedNumber}
                     </div>
                 </div>
 
-                {/* BACK */}
-                <div
-                    className="absolute inset-0 w-full h-full rotate-y-180 rounded-2xl overflow-hidden border border-white/5 bg-[#0B0B0B] shadow-2xl"
-                    style={{ backfaceVisibility: 'hidden' }}
-                >
-                    <div className="mt-6 w-full h-12 bg-black relative z-10"></div>
+                {/* Bottom Row: Name, Date, Brand */}
+                <div className="flex justify-between items-end">
+                    <div className="flex flex-col gap-1">
+                        <div className="text-[10px] font-semibold text-ashWhite/60 uppercase tracking-widest pl-1">Card Holder</div>
+                        <div className="text-[13px] font-bold text-ashWhite uppercase tracking-widest truncate max-w-[180px] drop-shadow-md">
+                            {name || 'YOUR NAME'}
+                        </div>
+                    </div>
 
-                    <div className="p-6 relative z-10">
-                        {/* CVV Stripe */}
-                        <div className="flex items-center gap-4 mt-4">
-                            <div className="flex-1 h-10 bg-white/10 rounded flex items-center justify-end px-3">
-                                <span className="text-sm text-black bg-white px-3 py-1 rounded-sm font-mono font-bold tracking-widest">
-                                    {cvv || '***'}
-                                </span>
+                    <div className="flex flex-col items-end gap-2">
+                        <div className="flex flex-col items-end mr-1">
+                            <div className="text-[9px] font-semibold text-ashWhite/60 uppercase tracking-widest">Expires</div>
+                            <div className="text-[13px] font-mono text-ashWhite tracking-widest drop-shadow-md">
+                                {expiry || 'MM/YY'}
                             </div>
-                            <div className="text-xs text-ashWhite/40 font-bold uppercase tracking-widest">CVV</div>
                         </div>
 
-                        {/* Faint Number on Back */}
-                        <div className="absolute bottom-6 left-6 text-[10px] text-ashWhite/20 font-mono tracking-widest">
-                            {displayedNumber}
+                        <div className="mt-1">
+                            {brand === 'VISA' && (
+                                <span className="text-white font-serif font-black italic text-3xl tracking-tighter drop-shadow-lg">VISA</span>
+                            )}
+                            {brand === 'MASTERCARD' && (
+                                <div className="flex items-center relative w-12 opacity-90">
+                                    <div className="w-8 h-8 bg-[#EB001B] rounded-full relative z-10 shadow-lg opacity-90 backdrop-blur-sm"></div>
+                                    <div className="w-8 h-8 bg-[#F79E1B] rounded-full -ml-4 relative z-20 mix-blend-screen shadow-lg opacity-90 backdrop-blur-sm"></div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

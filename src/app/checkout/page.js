@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { CartContext } from '../context/CartContext';
 import { UserContext } from '../context/UserContext';
 import { OrderContext } from '../context/OrderContext';
@@ -16,6 +17,7 @@ import { isStoreOpen, checkDeliveryAvailability } from '../../utils/storeLogic';
 import OTPModal from '../components/OTPModal';
 
 const CheckoutPage = () => {
+    const router = useRouter();
     const { cart, cartTotal, clearCart } = useContext(CartContext);
     const { user, addAddress, removeAddress, verifyPhone } = useContext(UserContext);
     const { createOrder } = useContext(OrderContext);
