@@ -6,7 +6,7 @@ import { Package, Clock, MapPin, CheckCircle, Phone, ChefHat, Flame, Truck, Aler
 import Link from 'next/link';
 
 const OrderPage = ({ params }) => {
-    const { orderId } = params;
+    const { orderId } = React.use(params);
     const { activeOrder, stageMessages, cancelOrder } = useContext(OrderContext);
     const [orders, setOrders] = useState([]);
 
@@ -203,7 +203,7 @@ const OrderPage = ({ params }) => {
                                         }`}
                                 >
                                     <AlertCircle className="w-4 h-4" />
-                                    {currentStageIndex > 0 ? 'Cannot Cancel' : 'Cancel Order'}
+                                    {currentStageIndex > 0 ? 'Cannot Cancel' : 'Cancel Order (Available for 15s)'}
                                 </button>
                             )}
                         </div>

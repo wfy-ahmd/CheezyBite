@@ -6,7 +6,8 @@ import { UserContext } from '../context/UserContext';
 import { OrderContext } from '../context/OrderContext';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle, CreditCard, MapPin, Truck, Plus, Home, Briefcase, Trash2, Loader2 } from 'lucide-react';
+import { CheckCircle, CreditCard, MapPin, Truck, Plus, Home, Briefcase, Trash2, Loader2, AlertCircle } from 'lucide-react';
+
 import toast from 'react-hot-toast';
 import CreditCardForm from '../components/CreditCardForm';
 // Validating card fields
@@ -24,7 +25,9 @@ const CheckoutPage = () => {
 
     const [success, setSuccess] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState('cash'); // Default to Cash as it's easier for demos
+    const [paymentStatus, setPaymentStatus] = useState('idle'); // idle, processing, success, error
+    const [paymentError, setPaymentError] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('cash'); // Default to Cash for demo
     const [deliveryTime, setDeliveryTime] = useState('asap');
     const [deliveryInstructions, setDeliveryInstructions] = useState('');
 
@@ -85,8 +88,12 @@ const CheckoutPage = () => {
     // Placeholder for payment processing - Simulating 10% failure rate for realism
     const processPayment = async () => {
         await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-        // Random 10% failure chance to demo error handling
-        if (Math.random() < 0.1) {
+
+        // FAIL-SAFE TEST: You can uncomment this to force failure
+        // throw new Error("Bank declined the transaction.");
+
+        // Random 20% failure chance to demo error handling logic
+        if (Math.random() < 0.2) {
             throw new Error("Transaction declined by bank. Please try another card.");
         }
         return true;
@@ -159,37 +166,44 @@ const CheckoutPage = () => {
         }
 
         setIsProcessing(true);
+        setPaymentStatus('processing');
+        setPaymentError('');
 
         try {
             if (paymentMethod === 'card') {
                 await processPayment();
             }
 
-            // Create Order and Get ID
-            const newOrder = createOrder(cart, cartTotal, {
+            // ONLY HERE do we create the order - after payment success
+            const orderData = {
                 address: deliveryAddress,
                 paymentMethod,
                 deliveryTime,
-                deliveryTime,
-                deliveryTime,
-                deliveryInstructions,
+                deliveryInstructions, // Store instructions
                 paymentDetails: paymentMethod === 'card'
                     ? { type: 'card', masked: '**' + cardData.number.slice(-4), token: 'tok_cheezybite_' + Math.random().toString(36).substr(2, 9) }
                     : { type: 'cod' }
-            });
+            };
 
-            clearCart();
+            // Create Order
+            const newOrder = createOrder(cart, cartTotal, orderData);
 
-            // Redirect to Tracking Page
             if (newOrder && newOrder.id) {
+                clearCart();
+                setPaymentStatus('success');
+                setSuccess(true);
                 router.push(`/order/${newOrder.id}`);
             } else {
-                toast.error("Error creating order reference");
+                throw new Error("Failed to generate order reference.");
             }
 
         } catch (error) {
-            toast.error("Payment Failed: " + error.message || "An unexpected error occurred.");
-            setIsProcessing(false); // Only stop processing on error, otherwise keep spinning until redirect
+            console.error(error);
+            setPaymentStatus('error');
+            setPaymentError(error.message || "Payment processing failed. Please try again.");
+            setIsProcessing(false);
+            // CRITICAL: We do NOT clear cart, we do NOT reset address.
+            // User stays on this page to retry.
         }
     };
 
@@ -470,15 +484,49 @@ const CheckoutPage = () => {
                             {isProcessing ? (
                                 <>
                                     <Loader2 className="w-5 h-5 animate-spin" />
-                                    Processing...
+                                    Processing Payment...
                                 </>
                             ) : (
                                 <>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                                    Pay & Place Order
+                                    {paymentMethod === 'card' ? `Pay Rs. ${(parseFloat(cartTotal) + 350).toLocaleString()}` : 'Place Order'}
                                 </>
                             )}
                         </button>
+
+                        {/* Payment Failure UI */}
+                        {paymentStatus === 'error' && (
+                            <div className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in slide-in-from-top-2">
+                                <div className="flex items-start gap-3">
+                                    <div className="bg-red-500/20 p-2 rounded-full">
+                                        <AlertCircle className="w-6 h-6 text-red-500" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-bold text-red-500 text-lg">Transaction Failed</h4>
+                                        <p className="text-red-400 text-sm mb-4">{paymentError}</p>
+
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={handlePlaceOrder}
+                                                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg text-sm transition-colors"
+                                            >
+                                                🔁 Retry Payment
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setPaymentMethod('cash');
+                                                    setPaymentStatus('idle');
+                                                    setPaymentError('');
+                                                }}
+                                                className="flex-1 bg-transparent border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold py-2 rounded-lg text-sm transition-colors"
+                                            >
+                                                💵 Switch to Cash
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div className="flex items-center justify-center gap-2 mt-4 text-xs text-ashWhite/50">
                             <Truck className="w-3 h-3" />
                             <span>Secure Checkout with 256-bit Encryption</span>
