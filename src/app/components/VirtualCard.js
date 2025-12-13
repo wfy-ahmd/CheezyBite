@@ -3,11 +3,22 @@ import React, { useMemo } from 'react';
 const VirtualCard = ({ cardData, isFlipped }) => {
     const { number, name, expiry } = cardData;
 
-    // Brand Detection
+    // Brand Detection (Strict Sri Lanka Rules: Visa & Mastercard ONLY)
     const brand = useMemo(() => {
-        if (number.startsWith('4')) return 'VISA';
-        if (number.startsWith('5')) return 'MASTERCARD';
-        return 'VISA'; // Default to Visa for aesthetic if unknown
+        const cleanNumber = number.replace(/\D/g, '');
+
+        // Visa: Starts with 4
+        if (cleanNumber.startsWith('4')) return 'VISA';
+
+        // Mastercard: Starts with 51-55 OR 2221-2720
+        const firstTwo = parseInt(cleanNumber.substring(0, 2), 10);
+        const firstFour = parseInt(cleanNumber.substring(0, 4), 10);
+
+        if ((firstTwo >= 51 && firstTwo <= 55) || (firstFour >= 2221 && firstFour <= 2720)) {
+            return 'MASTERCARD';
+        }
+
+        return null; // Neutral / Unknown
     }, [number]);
 
     // Format Masked Number for Display
