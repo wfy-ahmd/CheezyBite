@@ -8,7 +8,62 @@ export default function AdminDashboard() {
     const { analytics, orders, pizzas, toppings, loading } = useAdmin();
 
     if (loading || !analytics) {
-        return <div className="text-white">Loading...</div>;
+        return (
+            <div className="space-y-6 animate-pulse">
+                {/* Header Skeleton */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="space-y-2">
+                        <div className="h-8 w-48 bg-gray-800 rounded-lg"></div>
+                        <div className="h-4 w-64 bg-gray-800/50 rounded-lg"></div>
+                    </div>
+                    <div className="h-10 w-40 bg-gray-800 rounded-lg"></div>
+                </div>
+
+                {/* Stats Grid Skeleton */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="bg-gray-800 rounded-xl p-6 border border-gray-700/50">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-gray-700 rounded-lg"></div>
+                                <div className="space-y-2">
+                                    <div className="h-3 w-20 bg-gray-700 rounded"></div>
+                                    <div className="h-6 w-24 bg-gray-700 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Orders by Status Skeleton */}
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700/50">
+                    <div className="h-6 w-32 bg-gray-700 rounded mb-4"></div>
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className="flex flex-col items-center gap-2">
+                                <div className="w-12 h-12 bg-gray-700 rounded-full"></div>
+                                <div className="h-3 w-16 bg-gray-700 rounded"></div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Charts Grid Skeleton */}
+                <div className="grid lg:grid-cols-2 gap-6">
+                    <div className="bg-gray-800 rounded-xl p-6 border border-gray-700/50 h-[300px]"></div>
+                    <div className="bg-gray-800 rounded-xl p-6 border border-gray-700/50 h-[300px]"></div>
+                </div>
+
+                {/* Reviews Skeleton */}
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700/50">
+                    <div className="h-6 w-40 bg-gray-700 rounded mb-4"></div>
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {[...Array(4)].map((_, i) => (
+                            <div key={i} className="bg-gray-700/30 p-4 rounded-lg h-24"></div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     const recentOrders = orders.slice(0, 5);
