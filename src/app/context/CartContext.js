@@ -185,9 +185,14 @@ const CartProvider = ({ children }) => {
         toast.success('🛒 Cart cleared', { duration: 2000, position: 'bottom-right' });
     };
 
+    const toggleCart = () => setIsOpen(prev => !prev);
+    const closeCart = () => setIsOpen(false);
+    const openCart = () => setIsOpen(true);
+
     return (
         <CartContext.Provider value={{
             isOpen, setIsOpen,
+            toggleCart, closeCart, openCart,
             addToCart,
             cart, setCart,
             removeItem,

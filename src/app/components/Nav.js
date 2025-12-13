@@ -9,7 +9,7 @@ import { Menu, X, ShoppingBag, User } from "lucide-react";
 import AuthModal from "./AuthModal";
 
 const Nav = () => {
-  const { isOpen, setIsOpen, itemAmount } = useContext(CartContext);
+  const { isOpen, setIsOpen, itemAmount, toggleCart } = useContext(CartContext);
   const { user } = useContext(UserContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -106,7 +106,18 @@ const Nav = () => {
               </button>
             )}
 
-            {/* Cart Icon Removed - Replaced by SmartCart Pill */}
+            {/* Cart Icon */}
+            <button
+              onClick={toggleCart}
+              className="relative p-2 text-ashWhite hover:text-white transition-colors"
+            >
+              <ShoppingBag className="w-6 h-6" />
+              {itemAmount > 0 && (
+                <span className={`absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-charcoalBlack transition-transform duration-300 ${cartBounce ? 'scale-125' : 'scale-100'}`}>
+                  {itemAmount}
+                </span>
+              )}
+            </button>
           </div>
         </div>
 
