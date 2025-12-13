@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { CartContext } from "../context/CartContext";
 
 const CartTop = () => {
-  const { setIsOpen } = useContext(CartContext);
+  const { setIsOpen, cart } = useContext(CartContext);
   return (
     <div className="w-full h-20 border-b border-cardBorder flex items-center justify-between px-10">
       <div className="font-semibold text-ashWhite">Shopping Bag({cart.reduce((a, c) => a + c.amount, 0)})</div>
