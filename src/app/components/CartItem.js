@@ -15,8 +15,13 @@ const CartItem = ({ pizza }) => {
         <div className="flex-1 flex flex-col gap-y-10">
           <div className="text-lg capitalize font-bold text-ashWhite">{pizza.name}</div>
           <div className="flex flex-col gap-y-1">
-            <div className="capitalize font-medium text-[15px] text-ashWhite/70">{pizza.crust} crust</div>
-            <div className="capitalize mb-2 font-medium text-[15px] text-ashWhite/70">{pizza.size} size</div>
+            {/* Conditional Rendering for Pizza Options */}
+            {!(pizza.size === 'standard' && pizza.crust === 'bottle') && (
+              <>
+                <div className="capitalize font-medium text-[15px] text-ashWhite/70">{pizza.crust} crust</div>
+                <div className="capitalize mb-2 font-medium text-[15px] text-ashWhite/70">{pizza.size} size</div>
+              </>
+            )}
             <div className="flex items-center gap-x-1">
               <div onClick={() => decreaseAmount(pizza.cartLineId)} className="w-[18px] h-[18px] flex justify-center items-center cursor-pointer text-white gradient rounded-full"><Minus className="w-3 h-3" /></div>
               <div className="font-semibold flex flex-1 max-w-[30px] justify-center items-center text-sm text-ashWhite">{pizza.amount}</div>
@@ -41,7 +46,9 @@ const CartItem = ({ pizza }) => {
       </div>
       <div className="flex flex-wrap items-center gap-3 mt-4">
         <div className="font-semibold text-ashWhite/80">
-          Toppings: {pizza.additionalTopping.length === 0 && 'None'}
+          {!(pizza.size === 'standard' && pizza.crust === 'bottle') && (
+            <>Toppings: {pizza.additionalTopping.length === 0 && 'None'}</>
+          )}
         </div>
         {pizza.additionalTopping.map((topping, index) => (
           <div className="capitalize text-xs bg-softBlack text-ashWhite font-medium px-3 py-1 rounded-full leading-none border border-cardBorder" key={index}>

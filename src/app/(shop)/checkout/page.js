@@ -470,15 +470,18 @@ const CheckoutPage = () => {
                                 <div key={index} className="flex gap-4 items-center">
                                     <div className="w-20 h-20 bg-charcoalBlack rounded-xl flex items-center justify-center relative flex-shrink-0 border border-cardBorder">
                                         <Image src={item.image} alt={item.name} width={70} height={70} className="object-contain" />
-                                        <span className="absolute -top-3 -right-3 w-6 h-6 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-softBlack shadow-lg z-10">
+                                        <span className="absolute top-1 right-1 w-6 h-6 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-softBlack shadow-lg z-10">
                                             {item.amount}
                                         </span>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className="text-sm font-bold text-ashWhite line-clamp-1">{item.name}</h4>
-                                        <p className="text-xs text-ashWhite/60 truncate">{item.size}, {item.crust}</p>
+                                    <div className="flex-1 min-w-0 pr-2">
+                                        <h4 className="text-sm font-bold text-ashWhite leading-snug break-words">{item.name}</h4>
+                                        {/* Hide details for drinks/extras marked as standard/bottle */}
+                                        {!(item.size === 'standard' && item.crust === 'bottle') && (
+                                            <p className="text-xs text-ashWhite/60 mt-1 leading-normal">{item.size}, {item.crust}</p>
+                                        )}
                                     </div>
-                                    <div className="text-sm font-bold text-secondary whitespace-nowrap">
+                                    <div className="text-sm font-bold text-secondary whitespace-nowrap self-start mt-2">
                                         Rs. {(item.price * item.amount).toLocaleString()}
                                     </div>
                                 </div>

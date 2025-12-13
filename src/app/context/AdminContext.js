@@ -158,6 +158,13 @@ export const AdminProvider = ({ children }) => {
 
     // ============ ORDERS ============
     const updateOrderStatus = useCallback((orderId, newStage) => {
+        if (newStage === -1) {
+            updateOrderInStorage(orderId, -1, 'Cancelled');
+            setOrders(prev => prev.map(o => o.id === orderId ? { ...o, currentStage: -1, status: 'Cancelled' } : o));
+            toast.error('Order Cancelled');
+            return;
+        }
+
         const stageNames = ['Order Placed', 'Preparing', 'Baking', 'Out for Delivery', 'Delivered'];
         const updatedOrders = updateOrderInStorage(orderId, newStage, stageNames[newStage]);
         setOrders(updatedOrders);

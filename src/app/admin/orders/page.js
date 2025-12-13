@@ -23,6 +23,21 @@ export default function OrdersPage() {
         return new Date(timestamp).toLocaleString();
     };
 
+    const getStageColor = (stage) => {
+        if (stage === -1) return 'bg-red-500';
+        return stageColors[stage] || 'bg-gray-500';
+    };
+
+    const getStageName = (stage) => {
+        if (stage === -1) return 'Cancelled';
+        return stageNames[stage] || 'Unknown';
+    };
+
+    const getStageEmoji = (stage) => {
+        if (stage === -1) return '❌';
+        return stageEmojis[stage] || '❓';
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -45,10 +60,10 @@ export default function OrdersPage() {
                 </div>
             ) : (
                 <div className="space-y-4">
-                    {orders.map((order) => (
+                    {orders.slice().reverse().map((order) => (
                         <div
                             key={order.id}
-                            className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden"
+                            className={`bg-gray-800 rounded-xl border overflow-hidden ${order.currentStage === -1 ? 'border-red-500/30' : 'border-gray-700'}`}
                         >
                             {/* Order Header */}
                             <div
@@ -56,8 +71,8 @@ export default function OrdersPage() {
                                 onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 ${stageColors[order.currentStage]} rounded-lg flex items-center justify-center`}>
-                                        <span className="text-lg">{stageEmojis[order.currentStage]}</span>
+                                    <div className={`w-10 h-10 ${getStageColor(order.currentStage)} rounded-lg flex items-center justify-center`}>
+                                        <span className="text-lg">{getStageEmoji(order.currentStage)}</span>
                                     </div>
                                     <div>
                                         <p className="text-white font-semibold">Order #{order.id.toString().slice(-6)}</p>
@@ -69,8 +84,8 @@ export default function OrdersPage() {
                                         <p className="text-white font-semibold">Rs. {order.total?.toFixed(2)}</p>
                                         <p className="text-gray-400 text-sm">{order.items?.length || 0} items</p>
                                     </div>
-                                    <span className={`px-3 py-1 rounded-full text-sm ${stageColors[order.currentStage]} text-white`}>
-                                        {stageNames[order.currentStage]}
+                                    <span className={`px-3 py-1 rounded-full text-sm ${getStageColor(order.currentStage)} text-white`}>
+                                        {getStageName(order.currentStage)}
                                     </span>
                                     {expandedOrder === order.id ? (
                                         <ChevronUp className="w-5 h-5 text-gray-400" />
@@ -83,6 +98,31 @@ export default function OrdersPage() {
                             {/* Expanded Details */}
                             {expandedOrder === order.id && (
                                 <div className="border-t border-gray-700 p-4 space-y-4">
+                                    {/* Actions for New Orders */}
+                                    {order.currentStage === 0 && (
+                                        <div className="flex gap-4 p-4 bg-gray-900/50 rounded-lg border border-gray-700">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    updateOrderStatus(order.id, 1); // Accept -> Preparing
+                                                }}
+                                                className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2"
+                                            >
+                                                <CheckCircle className="w-5 h-5" />
+                                                Accept Order
+                                            </button>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    updateOrderStatus(order.id, -1); // Reject -> Cancelled
+                                                }}
+                                                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2"
+                                            >
+                                                ❌ Reject Order
+                                            </button>
+                                        </div>
+                                    )}
+
                                     {/* Order Items */}
                                     <div>
                                         <h4 className="text-gray-400 text-sm font-medium mb-2">Order Items</h4>
@@ -100,25 +140,33 @@ export default function OrdersPage() {
                                         </div>
                                     </div>
 
-                                    {/* Status Update */}
-                                    <div>
-                                        <h4 className="text-gray-400 text-sm font-medium mb-2">Update Status</h4>
-                                        <div className="flex flex-wrap gap-2">
-                                            {stageNames.map((stage, index) => (
+                                    {/* Manual Status Overrides (Hidden for Cancelled) */}
+                                    {order.currentStage !== -1 && (
+                                        <div>
+                                            <h4 className="text-gray-400 text-sm font-medium mb-2">Manual Status Override</h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {stageNames.map((stage, index) => (
+                                                    <button
+                                                        key={stage}
+                                                        onClick={() => updateOrderStatus(order.id, index)}
+                                                        disabled={order.currentStage === index}
+                                                        className={`px-3 py-2 rounded-lg text-sm transition-colors ${order.currentStage === index
+                                                            ? `${stageColors[index]} text-white cursor-default`
+                                                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                                            }`}
+                                                    >
+                                                        {stageEmojis[index]} {stage}
+                                                    </button>
+                                                ))}
                                                 <button
-                                                    key={stage}
-                                                    onClick={() => updateOrderStatus(order.id, index)}
-                                                    disabled={order.currentStage === index}
-                                                    className={`px-3 py-2 rounded-lg text-sm transition-colors ${order.currentStage === index
-                                                        ? `${stageColors[index]} text-white cursor-default`
-                                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                                        }`}
+                                                    onClick={() => updateOrderStatus(order.id, -1)}
+                                                    className="px-3 py-2 rounded-lg text-sm bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/20"
                                                 >
-                                                    {stageEmojis[index]} {stage}
+                                                    ❌ Cancel
                                                 </button>
-                                            ))}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                             )}
                         </div>
