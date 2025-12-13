@@ -1,6 +1,6 @@
 import React from 'react';
 import MenuClient from './MenuClient';
-import { getPizzas } from '../utils/pizzaStore';
+import { getPizzas } from '../../utils/pizzaStore';
 
 export const metadata = {
     title: 'Menu | CheezyBite',

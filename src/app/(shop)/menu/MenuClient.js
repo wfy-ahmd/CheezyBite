@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import PizzaGrid from '../components/PizzaGrid';
+import PizzaGrid from '../../components/PizzaGrid';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
