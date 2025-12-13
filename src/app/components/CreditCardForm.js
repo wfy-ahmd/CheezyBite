@@ -62,6 +62,19 @@ const CreditCardForm = ({ cardData, setCardData, errors, touched, handleBlur }) 
         setCardData(prev => ({ ...prev, [name]: formattedValue }));
     };
 
+    // Derived Brand for Form Display
+    const getBrand = (number) => {
+        const cleanNumber = number?.replace(/\D/g, '') || '';
+        if (cleanNumber.startsWith('4')) return 'VISA';
+        const firstTwo = parseInt(cleanNumber.substring(0, 2), 10);
+        const firstFour = parseInt(cleanNumber.substring(0, 4), 10);
+        if ((firstTwo >= 51 && firstTwo <= 55) || (firstFour >= 2221 && firstFour <= 2720)) {
+            return 'MASTERCARD';
+        }
+        return null;
+    };
+    const detectedBrand = getBrand(cardData.number);
+
     return (
         <div className="space-y-6 pt-10">
             {/* Live Virtual Card Preview */}
@@ -78,18 +91,29 @@ const CreditCardForm = ({ cardData, setCardData, errors, touched, handleBlur }) 
                 {/* 256-bit badge removed as per request */}
 
                 <div className="space-y-4">
-                    <InputField
-                        label="Card Number"
-                        name="number"
-                        placeholder="0000 0000 0000 0000"
-                        value={cardData.number}
-                        onChange={handleChange}
-                        onBlur={(e) => handleBlur('number', e.target.value)}
-                        error={touched.number && errors.number}
-                        isValid={!errors.number && cardData.number?.length === 19} // 16 digits + 3 spaces
-                        maxLength={19}
-                        onFocus={() => setIsFlipped(false)}
-                    />
+                    <div className="relative">
+                        <InputField
+                            label="Card Number"
+                            name="number"
+                            placeholder="0000 0000 0000 0000"
+                            value={cardData.number}
+                            onChange={handleChange}
+                            onBlur={(e) => handleBlur('number', e.target.value)}
+                            error={touched.number && errors.number}
+                            isValid={!errors.number && cardData.number?.length === 19} // 16 digits + 3 spaces
+                            maxLength={19}
+                            onFocus={() => setIsFlipped(false)}
+                        />
+                        <div className="absolute top-[34px] right-3 pointer-events-none">
+                            {detectedBrand === 'VISA' && <span className="text-white font-serif font-black italic text-sm">VISA</span>}
+                            {detectedBrand === 'MASTERCARD' && (
+                                <div className="flex items-center relative w-6">
+                                    <div className="w-4 h-4 bg-[#EB001B] rounded-full relative z-10 opacity-90"></div>
+                                    <div className="w-4 h-4 bg-[#F79E1B] rounded-full -ml-2 relative z-20 mix-blend-screen opacity-90"></div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
