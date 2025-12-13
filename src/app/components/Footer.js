@@ -4,7 +4,7 @@ import { Phone, Mail, MapPin } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-deepBlack bg-pattern py-16">
+    <footer className="bg-charcoal bg-pattern py-16">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-3 gap-8 items-start">
           {/* Brand Section */}

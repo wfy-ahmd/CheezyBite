@@ -22,7 +22,7 @@ const AdminLayout = ({ children }) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-deepBlack flex items-center justify-center">
+            <div className="min-h-screen bg-cream flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
         );
@@ -31,14 +31,14 @@ const AdminLayout = ({ children }) => {
     // Login Screen
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-deepBlack flex items-center justify-center p-4">
-                <div className="bg-cardGrey rounded-2xl shadow-2xl p-8 w-full max-w-md border border-white/10">
+            <div className="min-h-screen bg-cream flex items-center justify-center p-4">
+                <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md border border-gray-100">
                     <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full mb-4">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
                             <Pizza className="w-8 h-8 text-primary" />
                         </div>
-                        <h1 className="text-2xl font-bold text-white">CheezyBite Admin</h1>
-                        <p className="text-softGrey mt-2">Enter password to access dashboard</p>
+                        <h1 className="text-2xl font-bold text-charcoal">CheezyBite Admin</h1>
+                        <p className="text-charcoal/70 mt-2">Enter password to access dashboard</p>
                     </div>
 
                     <form onSubmit={(e) => { e.preventDefault(); login(password); }} className="space-y-4">
@@ -47,7 +47,7 @@ const AdminLayout = ({ children }) => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Password"
-                            className="w-full px-4 py-3 bg-darkGrey border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-primary transition-all"
+                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-charcoal placeholder-charcoal/40 focus:outline-none focus:border-primary transition-all"
                         />
                         <button
                             type="submit"
@@ -57,8 +57,8 @@ const AdminLayout = ({ children }) => {
                         </button>
                     </form>
 
-                    <p className="text-center text-softGrey text-sm mt-6">
-                        Hint: password is <code className="text-white/60">admin123</code>
+                    <p className="text-center text-charcoal/60 text-sm mt-6">
+                        Hint: password is <code className="text-charcoal">admin123</code>
                     </p>
 
                     <Link href="/" className="block text-center text-primary hover:text-primaryHover mt-4">
@@ -70,17 +70,17 @@ const AdminLayout = ({ children }) => {
     }
 
     return (
-        <div className="min-h-screen bg-deepBlack flex">
+        <div className="min-h-screen bg-cream flex">
             {/* Sidebar - Desktop */}
-            <aside className="hidden lg:flex lg:flex-col w-64 bg-darkGrey border-r border-white/10">
+            <aside className="hidden lg:flex lg:flex-col w-64 bg-charcoal border-r border-black/10">
                 <div className="p-6 border-b border-white/10">
                     <Link href="/admin" className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
                             <Pizza className="w-6 h-6 text-primary" />
                         </div>
                         <div>
                             <div className="font-bold text-white">CheezyBite</div>
-                            <div className="text-xs text-softGrey">Admin Panel</div>
+                            <div className="text-xs text-secondary">Admin Panel</div>
                         </div>
                     </Link>
                 </div>
@@ -105,7 +105,7 @@ const AdminLayout = ({ children }) => {
                     </Link>
                     <button
                         onClick={logout}
-                        className="flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors w-full"
+                        className="flex items-center gap-3 px-4 py-3 text-red-300 hover:text-red-200 hover:bg-red-500/10 rounded-lg transition-colors w-full"
                     >
                         <LogOut className="w-5 h-5" />
                         <span>Logout</span>
@@ -114,14 +114,14 @@ const AdminLayout = ({ children }) => {
             </aside>
 
             {/* Mobile Header */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-darkGrey border-b border-white/10 px-4 py-3 flex items-center justify-between">
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-charcoal border-b border-white/10 px-4 py-3 flex items-center justify-between">
                 <Link href="/admin" className="flex items-center gap-2">
                     <Pizza className="w-6 h-6 text-primary" />
                     <span className="font-bold text-white">Admin</span>
                 </Link>
                 <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="p-2 text-softGrey hover:text-white"
+                    className="p-2 text-white/70 hover:text-white"
                 >
                     {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                 </button>
@@ -130,7 +130,7 @@ const AdminLayout = ({ children }) => {
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setSidebarOpen(false)}>
-                    <aside className="w-64 h-full bg-darkGrey p-4" onClick={(e) => e.stopPropagation()}>
+                    <aside className="w-64 h-full bg-charcoal p-4" onClick={(e) => e.stopPropagation()}>
                         <nav className="space-y-1 mt-4">
                             {navItems.map((item) => (
                                 <Link
@@ -145,7 +145,7 @@ const AdminLayout = ({ children }) => {
                             ))}
                         </nav>
                         <div className="mt-4 pt-4 border-t border-white/10">
-                            <button onClick={logout} className="flex items-center gap-3 px-4 py-3 text-red-400 w-full">
+                            <button onClick={logout} className="flex items-center gap-3 px-4 py-3 text-red-300 w-full">
                                 <LogOut className="w-5 h-5" />
                                 <span className="">Logout</span>
                             </button>

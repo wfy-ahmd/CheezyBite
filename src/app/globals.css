@@ -7,51 +7,69 @@
   transition: opacity 200ms ease-in-out;
   z-index: 100;
 }
+
 .ReactModal__Overlay--after-open {
   opacity: 1;
 }
+
 .ReactModal__Overlay--before-close {
   opacity: 0;
 }
 
 @layer base {
   body {
-    @apply bg-deepBlack text-softGrey antialiased scrollbar-thin scrollbar-thumb-primary scrollbar-track-darkGrey;
+    @apply bg-cream text-charcoal antialiased scrollbar-thin scrollbar-thumb-primary scrollbar-track-cream;
   }
+
   .btn {
     @apply rounded-xl font-semibold transition-all duration-300;
   }
+
   .btn-sm {
     @apply py-3 px-6;
   }
+
   .btn-lg {
     @apply py-4 px-6;
   }
+
   .btn-primary {
     @apply bg-primary text-white shadow-lg hover:shadow-primary/25 hover:bg-primaryHover hover:-translate-y-1;
   }
+
   .btn-secondary {
-    @apply bg-cardGrey text-white hover:bg-darkGrey border border-white/10;
+    @apply bg-white text-charcoal hover:bg-lightGray border border-black/5 shadow-sm;
   }
+
   .input {
     @apply py-4 px-6;
   }
+
   .textarea {
     @apply resize-none py-4 px-6;
   }
+
   .input,
   .textarea {
-    @apply bg-darkGrey text-white outline-none focus:ring-2 focus:ring-primary/50 rounded-lg border border-white/10 font-medium placeholder:text-white/30 transition-all duration-300;
+    @apply bg-white text-charcoal outline-none focus:ring-2 focus:ring-primary/20 rounded-lg border border-black/10 font-medium placeholder:text-charcoal/40 transition-all duration-300;
   }
+
   .gradient {
-    @apply bg-gradient-to-r from-primary to-accent text-white transition-all duration-500 shadow-lg hover:shadow-primary/30;
+    @apply bg-gradient-to-r from-primary to-primaryHover text-white transition-all duration-500 shadow-lg hover:shadow-primary/30;
   }
 }
 
 /* Cart icon bounce animation */
 @keyframes bounce-once {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
 }
 
 .animate-bounce-once {
