@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useContext, useEffect, useState } from 'react';
-import { OrderContext } from '../../context/OrderContext';
+import { OrderContext } from '../../../context/OrderContext';
 import { Package, Clock, MapPin, CheckCircle, Phone, ChefHat, Flame, Truck, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -12,6 +12,11 @@ const OrderPage = ({ params }) => {
 
     // We check activeOrder first, then localStorage history for "past" orders
     const [currentOrder, setCurrentOrder] = useState(null);
+
+    // Feedback State
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState('');
+    const [isFeedbackSubmitted, setIsFeedbackSubmitted] = useState(false);
 
     useEffect(() => {
         if (activeOrder && activeOrder.id === orderId) {
@@ -36,11 +41,9 @@ const OrderPage = ({ params }) => {
     const { currentStage, items, total, address } = currentOrder;
     const currentStageIndex = currentOrder.currentStage || 0;
 
-    const [rating, setRating] = useState(0);
-    const [comment, setComment] = useState('');
-    const [isFeedbackSubmitted, setIsFeedbackSubmitted] = useState(false);
 
-    const handleFeedbackSubmit = () => {
+
+    const handleFeedbackSubmit = () => { // Fixed hooks duplicate issue
         if (rating === 0) return;
 
         // Update Order with Feedback
