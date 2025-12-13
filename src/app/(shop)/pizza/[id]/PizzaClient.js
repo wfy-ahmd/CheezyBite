@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import PizzaDetails from '../../components/PizzaDetails';
+import PizzaDetails from '../../../components/PizzaDetails';
 
 export default function PizzaClient({ pizza }) {
     // PizzaDetails expects { pizza, modal, setModal }

@@ -1,7 +1,7 @@
 // Force Re-compile 2
-import Banner from './components/Banner';
-import { getPizzas } from './utils/pizzaStore';
-import { BestSellers, Highlights, HowItWorks, OffersBanner, SocialProof } from './components/LandingSections';
+import Banner from '../components/Banner';
+import { getPizzas } from '../utils/pizzaStore';
+import { BestSellers, Highlights, HowItWorks, OffersBanner, SocialProof } from '../components/LandingSections';
 
 export default function Home() {
   const pizzas = getPizzas();

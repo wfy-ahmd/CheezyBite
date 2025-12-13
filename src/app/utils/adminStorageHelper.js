@@ -141,6 +141,60 @@ export function updateOrderStatus(orderId, newStage, message = '') {
 
 // ============ ADMIN AUTH ============
 
+const ADMIN_USERS_KEY = 'cheezybite_admin_users';
+
+const DEFAULT_ADMINS = [
+    {
+        id: 1,
+        username: 'admin',
+        password: 'Admin@123',
+        role: 'Super Admin',
+        isActive: true,
+        lastLogin: null
+    },
+    {
+        id: 2,
+        username: 'manager',
+        password: 'Manager@123',
+        role: 'Manager',
+        isActive: true,
+        lastLogin: null
+    }
+];
+
+export function loadAdmins() {
+    if (!isBrowser()) return DEFAULT_ADMINS;
+    try {
+        const data = localStorage.getItem(ADMIN_USERS_KEY);
+        if (!data) {
+            saveAdmins(DEFAULT_ADMINS);
+            return DEFAULT_ADMINS;
+        }
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Failed to load admins:', error);
+        return DEFAULT_ADMINS;
+    }
+}
+
+export function saveAdmins(admins) {
+    if (!isBrowser()) return false;
+    try {
+        localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify(admins));
+        return true;
+    } catch (error) {
+        console.error('Failed to save admins:', error);
+        return false;
+    }
+}
+
+export function updateAdmin(id, updates) {
+    const admins = loadAdmins();
+    const updated = admins.map(admin => admin.id === id ? { ...admin, ...updates } : admin);
+    saveAdmins(updated);
+    return updated;
+}
+
 export function isAdminLoggedIn() {
     if (!isBrowser()) return false;
     try {
@@ -159,17 +213,19 @@ export function getAdminRole() {
 }
 
 export function adminLogin(username, password) {
-    // Super Admin: admin / Admin@123
-    if (username === 'admin' && password === 'Admin@123') {
-        localStorage.setItem(ADMIN_AUTH_KEY, 'true');
-        localStorage.setItem(ADMIN_AUTH_KEY + '_role', 'Super Admin');
-        return true;
-    }
+    const admins = loadAdmins();
+    const admin = admins.find(a => a.username === username && a.password === password);
 
-    // Manager: manager / Manager@123
-    if (username === 'manager' && password === 'Manager@123') {
+    if (admin) {
+        if (!admin.isActive) return false; // Account disabled
+
+        // Success
         localStorage.setItem(ADMIN_AUTH_KEY, 'true');
-        localStorage.setItem(ADMIN_AUTH_KEY + '_role', 'Manager');
+        localStorage.setItem(ADMIN_AUTH_KEY + '_role', admin.role);
+
+        // Update Last Login
+        updateAdmin(admin.id, { lastLogin: Date.now() });
+
         return true;
     }
 
@@ -253,6 +309,7 @@ export default {
     loadToppings, saveToppings,
     loadAllOrders, saveAllOrders, addOrder, updateOrderStatus,
     isAdminLoggedIn, adminLogin, adminLogout, getAdminRole,
+    loadAdmins, saveAdmins, updateAdmin,
     getAnalyticsData,
     DEFAULT_PIZZAS, DEFAULT_TOPPINGS
 };

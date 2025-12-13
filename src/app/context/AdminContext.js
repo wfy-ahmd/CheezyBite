@@ -4,10 +4,9 @@ import React, { createContext, useState, useEffect, useCallback, useContext } fr
 import {
     loadPizzas, savePizzas,
     loadToppings, saveToppings,
-    loadPizzas, savePizzas,
-    loadToppings, saveToppings,
     loadAllOrders, saveAllOrders, updateOrderStatus as updateOrderInStorage,
     isAdminLoggedIn, adminLogin as doAdminLogin, adminLogout as doAdminLogout, getAdminRole,
+    loadAdmins, updateAdmin,
     getAnalyticsData,
     DEFAULT_PIZZAS, DEFAULT_TOPPINGS
 } from '../utils/adminStorageHelper';
@@ -29,6 +28,7 @@ export const AdminProvider = ({ children }) => {
     const [pizzas, setPizzas] = useState([]);
     const [toppings, setToppings] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [admins, setAdmins] = useState([]);
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -39,6 +39,7 @@ export const AdminProvider = ({ children }) => {
         setPizzas(loadPizzas());
         setToppings(loadToppings());
         setOrders(loadAllOrders());
+        setAdmins(loadAdmins());
         setAnalytics(getAnalyticsData());
         setLoading(false);
     }, []);
@@ -56,6 +57,7 @@ export const AdminProvider = ({ children }) => {
         setIsAuthenticated(success);
         if (success) {
             setUserRole(getAdminRole());
+            setAdmins(loadAdmins()); // Refresh access times
             toast.success('Welcome back, Admin!');
         } else {
             toast.error('Invalid username or password');
@@ -69,6 +71,23 @@ export const AdminProvider = ({ children }) => {
         setUserRole(null);
         toast.success('Logged out successfully');
     }, []);
+
+    const toggleAdminStatus = useCallback((id) => {
+        const admin = admins.find(a => a.id === id);
+        if (!admin) return;
+
+        // Prevent disabling self (simple check, full check should be by ID in real app)
+        // For this demo, we can just warn if they try to disable the 'admin' user if logged in as 'admin'
+        // But better logic: The UI should handle disabling 'Self' button.
+
+        const newStatus = !admin.isActive;
+        const updatedList = updateAdmin(id, { isActive: newStatus });
+        setAdmins(updatedList);
+
+        toast.success(`${admin.username} is now ${newStatus ? 'Active' : 'Disabled'}`);
+    }, [admins]);
+
+    // ============ PIZZAS ============
 
     // ============ PIZZAS ============
     const addPizza = useCallback((pizza) => {
@@ -176,6 +195,8 @@ export const AdminProvider = ({ children }) => {
         userRole,
         login,
         logout,
+        admins,
+        toggleAdminStatus,
         // Pizzas
         pizzas,
         addPizza,

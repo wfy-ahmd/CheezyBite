@@ -1,6 +1,6 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-import { getPizzas } from '../../utils/pizzaStore';
+import { getPizzas } from '../../../utils/pizzaStore';
 import PizzaClient from './PizzaClient';
 
 export default async function PizzaPage({ params }) {

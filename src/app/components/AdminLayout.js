@@ -21,7 +21,7 @@ const AdminLayout = ({ children }) => {
         { name: 'Toppings', href: '/admin/toppings', icon: Layers, roles: ['Super Admin', 'Manager'] },
         { name: 'Customers', href: '/admin/customers', icon: Users, roles: ['Super Admin', 'Manager'] },
         { name: 'Analytics', href: '/admin/analytics', icon: PieChart, roles: ['Super Admin'] },
-        { name: 'Admin Users', href: '/admin/users', icon: ShieldAlert, roles: ['Super Admin'] },
+        { name: 'Admin Users', href: '/admin/admin-users', icon: ShieldAlert, roles: ['Super Admin'] },
     ];
 
     // Filter based on Role
@@ -40,7 +40,7 @@ const AdminLayout = ({ children }) => {
 
         // Check for Restricted Access (Manager trying to access Super Admin pages)
         if (userRole === 'Manager') {
-            const restrictedRoutes = ['/admin/analytics', '/admin/users'];
+            const restrictedRoutes = ['/admin/analytics', '/admin/admin-users'];
             if (restrictedRoutes.some(route => pathname?.startsWith(route))) {
                 router.push('/admin'); // Redirect to Dashboard
             }
