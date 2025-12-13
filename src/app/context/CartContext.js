@@ -1,12 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { saveCart, loadCart, clearCart as clearStoredCart } from "../utils/localStorageHelper";
 import { useCartSync } from "../hooks/useCartSync";
 import toast from 'react-hot-toast';
 
 export const CartContext = createContext();
+
+export const useCart = () => {
+    return useContext(CartContext);
+};
 
 const CartProvider = ({ children }) => {
     const [isOpen, setIsOpen] = useState(false);
