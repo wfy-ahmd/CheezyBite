@@ -1,128 +1,283 @@
 import fs from 'fs';
 import path from 'path';
 
+// 25 Strict Products - No Dynamic Reading
+// Source of Truth: User Provided List
 export function getPizzas() {
-    // 1. Read and Sort Images (Deterministic)
-    const pizzaDir = path.join(process.cwd(), 'public/pizza');
-    let images = [];
-    try {
-        const filenames = fs.readdirSync(pizzaDir);
-        images = filenames
-            .filter((file) => /\.(jpg|jpeg|png|webp)$/i.test(file))
-            .sort(); // Sort ensures stability across reloads
-    } catch (e) {
-        console.error("Error reading pizza directory:", e);
-        // Fallback if directory fails
-        images = ['default_pizza.jpg'];
-    }
-
-    // 2. Define Source of Truth Data
-    const products = [
+    return [
+        // --- CHICKEN ---
         {
-            id: 'fire-pepper-chicken',
-            name: 'Fire Pepper Chicken',
-            description: 'Smoky grilled chicken, crushed pepper, and mozzarella on a soft hand-tossed base.',
-            priceSm: 1400,
-            priceMd: 1800,
-            priceLg: 2400,
-            rating: 4.8,
-            ratingCount: 1200,
-            tags: ['Popular', 'Spicy'],
-            toppings: [
-                { image: '/cherry.png', name: 'cherry tomatoes', price: 150 },
-                { image: '/jalapeno.png', name: 'jalapeno', price: 140 },
-                { image: '/fresh-tomatoes.png', name: 'fresh tomatoes', price: 130 },
-            ]
+            id: '1',
+            name: 'Fire Grilled Chicken',
+            image: '/pizza/pizza1.jpg',
+            description: 'Grilled chicken with crushed pepper and melted cheese.',
+            category: 'Chicken',
+            tags: ['Chicken', 'Spicy'],
+            priceSm: 1400, priceMd: 1800, priceLg: 2400, rating: 4.8, ratingCount: 1240,
+            toppings: []
         },
         {
-            id: 'classic-cheese-melt',
-            name: 'Classic Cheese Melt',
-            description: 'A rich blend of mozzarella and cheddar, baked until golden and stretchy.',
-            priceSm: 1200,
-            priceMd: 1600,
-            priceLg: 2100,
-            rating: 4.6,
-            ratingCount: 980,
-            tags: ['Cheesy'],
-            toppings: [
-                { image: '/parmesan.png', name: 'parmesan', price: 180 },
-                { image: '/corn.png', name: 'corn', price: 120 },
-            ]
+            id: '2',
+            name: 'BBQ Chicken Feast',
+            image: '/pizza/pizza2.jpg',
+            description: 'Smoky BBQ chicken with onion and mozzarella.',
+            category: 'Chicken',
+            tags: ['Chicken'],
+            priceSm: 1450, priceMd: 1850, priceLg: 2450, rating: 4.7, ratingCount: 980,
+            toppings: []
         },
+        // --- SPICY ---
         {
-            id: 'triple-cheese-burst',
+            id: '3',
+            name: 'Volcano Chicken',
+            image: '/pizza/pizza3.jpg',
+            description: 'Extra spicy chicken with fiery sauce and cheese.',
+            category: 'Chicken',
+            tags: ['Chicken', 'Spicy'],
+            priceSm: 1500, priceMd: 1900, priceLg: 2500, rating: 4.6, ratingCount: 850,
+            toppings: []
+        },
+        // --- CHEESE ---
+        {
+            id: '4',
             name: 'Triple Cheese Burst',
-            description: 'Mozzarella, cream cheese, and parmesan layered for ultimate cheese lovers.',
-            priceSm: 1600,
-            priceMd: 2100,
-            priceLg: 2800,
-            rating: 4.7,
-            ratingCount: 860,
-            tags: ['Extra Cheesy', 'Popular'],
-            toppings: [
-                { image: '/parmesan.png', name: 'parmesan', price: 180 },
-            ]
+            image: '/pizza/pizza4.jpg',
+            description: 'Mozzarella, cheddar, and parmesan in every bite.',
+            category: 'Cheese',
+            tags: ['Cheese'],
+            priceSm: 1600, priceMd: 2100, priceLg: 2800, rating: 4.9, ratingCount: 2100,
+            toppings: []
         },
+        // --- VEG ---
         {
-            id: 'garden-crunch',
-            name: 'Garden Crunch',
-            description: 'Fresh capsicum, onion, sweet corn, and olives with a light cheese finish.',
-            priceSm: 1100,
-            priceMd: 1500,
-            priceLg: 1900,
-            rating: 4.5,
-            ratingCount: 720,
+            id: '5',
+            name: 'Farmhouse Veg Supreme',
+            image: '/pizza/pizza5.jpg',
+            description: 'Loaded with onion, capsicum, olives, and golden cheese.',
+            category: 'Veg',
             tags: ['Veg'],
-            toppings: [
-                { image: '/corn.png', name: 'corn', price: 120 },
-                { image: '/fresh-tomatoes.png', name: 'fresh tomatoes', price: 130 },
-                { image: '/cherry.png', name: 'cherry tomatoes', price: 150 },
-            ]
+            priceSm: 1200, priceMd: 1600, priceLg: 2000, rating: 4.5, ratingCount: 750,
+            toppings: []
         },
+        // --- CHICKEN ---
         {
-            id: 'sweet-heat-chicken',
-            name: 'Sweet Heat Chicken',
-            description: 'Spicy chicken balanced with a mild honey glaze and melted cheese.',
-            priceSm: 1350,
-            priceMd: 1750,
-            priceLg: 2300,
-            rating: 4.6,
-            ratingCount: 640,
-            tags: ['Sweet & Spicy'],
-            toppings: [
-                { image: '/jalapeno.png', name: 'jalapeno', price: 140 },
-                { image: '/corn.png', name: 'corn', price: 120 },
-            ]
+            id: '6',
+            name: 'Classic Chicken Sausage',
+            image: '/pizza/pizza6.jpg',
+            description: 'Chicken sausage slices with a rich tomato base.',
+            category: 'Chicken',
+            tags: ['Chicken'],
+            priceSm: 1300, priceMd: 1700, priceLg: 2200, rating: 4.4, ratingCount: 600,
+            toppings: []
         },
+        // --- SPICY ---
         {
-            id: 'street-bbq-chicken',
-            name: 'Street BBQ Chicken',
-            description: 'BBQ-marinated chicken, onions, and smoky sauce inspired by street flavors.',
-            priceSm: 1450,
-            priceMd: 1850,
-            priceLg: 2500,
-            rating: 4.7,
-            ratingCount: 1000,
-            tags: ['Popular'],
-            toppings: [
-                { image: '/corn.png', name: 'corn', price: 120 },
-                { image: '/fresh-tomatoes.png', name: 'fresh tomatoes', price: 130 },
-            ]
+            id: '7',
+            name: 'Hot Chilli Chicken',
+            image: '/pizza/pizza7.jpg',
+            description: 'Red chilli flakes, hot sauce, and juicy chicken.',
+            category: 'Chicken',
+            tags: ['Chicken', 'Spicy'],
+            priceSm: 1400, priceMd: 1800, priceLg: 2300, rating: 4.6, ratingCount: 820,
+            toppings: []
+        },
+        // --- CHEESE ---
+        {
+            id: '8',
+            name: 'Cheese Lovers Classic',
+            image: '/pizza/pizza8.jpg',
+            description: 'Simple, rich, and ultra-cheesy.',
+            category: 'Cheese',
+            tags: ['Cheese'],
+            priceSm: 1100, priceMd: 1500, priceLg: 1900, rating: 4.5, ratingCount: 900,
+            toppings: []
+        },
+        // --- CHICKEN ---
+        {
+            id: '9',
+            name: 'Pepper Chicken Crunch',
+            image: '/pizza/pizza9.jpg',
+            description: 'Crispy chicken bites with bold pepper flavor.',
+            category: 'Chicken',
+            tags: ['Chicken', 'Spicy'],
+            priceSm: 1450, priceMd: 1850, priceLg: 2400, rating: 4.7, ratingCount: 1100,
+            toppings: []
+        },
+        // --- CHEESE ---
+        {
+            id: '10',
+            name: 'Creamy Cheese Melt',
+            image: '/pizza/pizza10.jpg',
+            description: 'Smooth creamy cheese with a soft base.',
+            category: 'Cheese',
+            tags: ['Cheese'],
+            priceSm: 1250, priceMd: 1650, priceLg: 2150, rating: 4.6, ratingCount: 880,
+            toppings: []
+        },
+        // --- SPICY ---
+        {
+            id: '11',
+            name: 'Spicy Pepperoni Heat',
+            image: '/pizza/pizza11.jpg',
+            description: 'Pepperoni-style chicken with bold spice.',
+            category: 'Chicken',
+            tags: ['Chicken', 'Spicy'],
+            priceSm: 1550, priceMd: 1950, priceLg: 2600, rating: 4.8, ratingCount: 1500,
+            toppings: []
+        },
+        // --- VEG ---
+        {
+            id: '12',
+            name: 'Sweet Corn & Cheese',
+            image: '/pizza/pizza12.jpg',
+            description: 'Classic sweet corn paired with rich melted cheese.',
+            category: 'Veg',
+            tags: ['Veg', 'Cheese'],
+            priceSm: 1150, priceMd: 1550, priceLg: 2050, rating: 4.4, ratingCount: 700,
+            toppings: []
+        },
+        // --- SPECIAL ---
+        {
+            id: '13',
+            name: 'Street Style Chicken',
+            image: '/pizza/pizza13.jpg',
+            description: 'Inspired by street-style spicy chicken flavors.',
+            category: 'Chicken',
+            tags: ['Chicken'],
+            priceSm: 1350, priceMd: 1750, priceLg: 2250, rating: 4.7, ratingCount: 950,
+            toppings: []
+        },
+        // --- CHICKEN ---
+        {
+            id: '14',
+            name: 'Chicken Tikka Fusion',
+            image: '/pizza/pizza14.jpg',
+            description: 'Indian-style tikka chicken with creamy cheese.',
+            category: 'Chicken',
+            tags: ['Chicken', 'Spicy'],
+            priceSm: 1500, priceMd: 1900, priceLg: 2500, rating: 4.8, ratingCount: 1300,
+            toppings: []
+        },
+        // --- CHEESE ---
+        {
+            id: '15',
+            name: 'Golden Cheese Crunch',
+            image: '/pizza/pizza15.jpg',
+            description: 'Crispy crust with deep cheese flavor.',
+            category: 'Cheese',
+            tags: ['Cheese'],
+            priceSm: 1300, priceMd: 1700, priceLg: 2200, rating: 4.6, ratingCount: 800,
+            toppings: []
+        },
+        // --- SPECIAL ---
+        {
+            id: '16',
+            name: 'Smoky BBQ Fusion',
+            image: '/pizza/pizza16.jpg',
+            description: 'BBQ sauce, chicken chunks, and cheese.',
+            category: 'Chicken',
+            tags: ['Chicken'],
+            priceSm: 1450, priceMd: 1850, priceLg: 2450, rating: 4.7, ratingCount: 1050,
+            toppings: []
+        },
+        // --- SPECIAL ---
+        {
+            id: '17',
+            name: 'Ultimate Cheezy Bite',
+            image: '/pizza/pizza17.png', // Explicit .png
+            description: 'Signature CheezyBite recipe with extra cheese.',
+            category: 'Cheese',
+            tags: ['Cheese'],
+            priceSm: 1700, priceMd: 2200, priceLg: 2900, rating: 4.9, ratingCount: 2500,
+            toppings: []
+        },
+        // --- CHICKEN ---
+        {
+            id: '18',
+            name: 'Roasted Chicken Melt',
+            image: '/pizza/pizza18.jpg',
+            description: 'Slow-roasted chicken with extra cheesy layers.',
+            category: 'Chicken',
+            tags: ['Chicken', 'Cheese'],
+            priceSm: 1400, priceMd: 1800, priceLg: 2300, rating: 4.6, ratingCount: 920,
+            toppings: []
+        },
+        // --- VEG ---
+        {
+            id: '19',
+            name: 'Garden Fresh Veggie',
+            image: '/pizza/pizza19.jpg',
+            description: 'Fresh capsicum, onion, tomato, sweet corn, and mozzarella on a soft base.',
+            category: 'Veg',
+            tags: ['Veg'],
+            priceSm: 1150, priceMd: 1550, priceLg: 1950, rating: 4.5, ratingCount: 680,
+            toppings: []
+        },
+        // --- VEG ---
+        {
+            id: '20',
+            name: 'Cheesy Mushroom Delight',
+            image: '/pizza/pizza20.jpg',
+            description: 'Juicy mushrooms with extra mozzarella and a creamy cheese finish.',
+            category: 'Veg',
+            tags: ['Veg', 'Cheese'],
+            priceSm: 1250, priceMd: 1650, priceLg: 2100, rating: 4.6, ratingCount: 740,
+            toppings: []
+        },
+        // --- SPICY ---
+        {
+            id: '21',
+            name: 'Peri Peri Blast',
+            image: '/pizza/pizza21.jpg',
+            description: 'Peri-peri chicken with smoky heat.',
+            category: 'Chicken',
+            tags: ['Chicken', 'Spicy'],
+            priceSm: 1500, priceMd: 1900, priceLg: 2500, rating: 4.7, ratingCount: 1150,
+            toppings: []
+        },
+        // --- CHEESE ---
+        {
+            id: '22',
+            name: 'Four Cheese Magic',
+            image: '/pizza/pizza22.jpg',
+            description: 'A perfect blend of four premium cheeses.',
+            category: 'Cheese',
+            tags: ['Cheese'],
+            priceSm: 1650, priceMd: 2150, priceLg: 2850, rating: 4.9, ratingCount: 1800,
+            toppings: []
+        },
+        // --- VEG ---
+        {
+            id: '23',
+            name: 'Olive Pepper Veggie',
+            image: '/pizza/pizza23.jpg',
+            description: 'Black olives, mild peppers, and light cheese for a balanced bite.',
+            category: 'Veg',
+            tags: ['Veg'],
+            priceSm: 1200, priceMd: 1600, priceLg: 2000, rating: 4.4, ratingCount: 620,
+            toppings: []
+        },
+        // --- SPICY ---
+        {
+            id: '24',
+            name: 'Chilli Cheese Inferno',
+            image: '/pizza/pizza24.jpg',
+            description: 'Melted cheese with green chilli heat (veg-friendly).',
+            category: 'Spicy',
+            tags: ['Spicy', 'Cheese'],
+            priceSm: 1300, priceMd: 1700, priceLg: 2200, rating: 4.5, ratingCount: 790,
+            toppings: []
+        },
+        // --- SPECIAL ---
+        {
+            id: '25',
+            name: 'Chef’s Special Mix',
+            image: '/pizza/pizza25.jpg',
+            description: 'A balanced mix of chicken, cheese, and mild spice.',
+            category: 'Chicken',
+            tags: ['Chicken', 'Cheese'],
+            priceSm: 1550, priceMd: 1950, priceLg: 2600, rating: 4.8, ratingCount: 1400,
+            toppings: []
         }
     ];
-
-    // 3. Map Images to Products (Index-Based)
-    return products.map((product, index) => {
-        // Use modulo to cycle through images if there are fewer images than products
-        // If images array is empty, this needs a failsafe (handled by fallback above usually, but extra check good)
-        const imageIndex = images.length > 0 ? index % images.length : 0;
-        const assignedImage = images.length > 0 ? `/pizza/${images[imageIndex]}` : '/pizza/default_pizza.jpg';
-
-        return {
-            ...product,
-            image: assignedImage
-        };
-    });
 }
-
-// Helper removed as we carry static data now
