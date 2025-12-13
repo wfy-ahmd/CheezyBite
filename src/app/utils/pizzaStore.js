@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+
 
 // 25 Strict Products - No Dynamic Reading
 // Source of Truth: User Provided List

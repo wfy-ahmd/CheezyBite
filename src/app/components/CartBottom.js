@@ -1,27 +1,22 @@
 import React, { useContext, useState } from "react";
-import { X } from "lucide-react";
-import CheckoutDetails from "./CheckoutDetails";
-import Modal from "react-modal";
 import { CartContext } from "../context/CartContext";
-
-const modalStyles = {
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-};
-
-Modal.setAppElement('body');
+import { UserContext } from "../context/UserContext"; // Import UserContext
+import { useRouter } from "next/navigation";
+import AuthModal from "./AuthModal"; // Reuse AuthModal
 
 const CartBottom = () => {
   const { setIsOpen, cart, cartTotal } = useContext(CartContext);
-  const [modal, setModal] = useState(false);
+  const { user } = useContext(UserContext); // Get user
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const router = useRouter();
 
-  const openModal = () => {
-    setModal(true);
-  };
-
-  const closeModal = () => {
-    setModal(false);
+  const handleCheckout = () => {
+    if (!user) {
+      setAuthModalOpen(true);
+    } else {
+      setIsOpen(false);
+      router.push('/checkout');
+    }
   };
 
   return (
@@ -34,10 +29,7 @@ const CartBottom = () => {
           </div>
           <div className="flex flex-col gap-y-3">
             <button
-              onClick={() => {
-                setIsOpen(false);
-                openModal();
-              }}
+              onClick={handleCheckout}
               className="btn btn-lg bg-gradient-to-r from-primary to-secondary w-full flex justify-center text-white shadow-lg hover:shadow-primary/20"
             >
               Checkout
@@ -49,19 +41,16 @@ const CartBottom = () => {
           <div className="font-semibold text-ashWhite/60">Your cart is empty</div>
         </div>
       )}
-      {modal &&
-        <Modal
-          className="bg-softBlack w-full h-full lg:max-w-[900px] lg:max-h-[600px] lg:rounded-[30px] lg:fixed lg:top-[50%] lg:left-[50%] lg:translate-x-[-50%] lg:translate-y-[-50%] outline-none shadow-2xl overflow-hidden border border-cardBorder"
-          isOpen={modal}
-          style={modalStyles}
-          onRequestClose={closeModal}
-          contentLabel="Checkout Modal"
-        >
-          <div onClick={closeModal} className="absolute z-30 right-4 top-4 hover:scale-110 duration-200 cursor-pointer bg-charcoalBlack rounded-full p-2 text-ashWhite/80 hover:text-ashWhite shadow-md">
-            <X className="text-2xl" />
-          </div>
-          <CheckoutDetails setModal={setModal} />
-        </Modal>}
+
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onSuccess={() => {
+          setAuthModalOpen(false);
+          // Optionally auto-redirect after login? User might want to verify cart first.
+          // Keeping them in cart is safer UX.
+        }}
+      />
     </>
   );
 };

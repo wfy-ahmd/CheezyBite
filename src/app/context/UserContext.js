@@ -105,6 +105,36 @@ export const UserProvider = ({ children }) => {
         localStorage.setItem('cheezybite_user', JSON.stringify(updatedUser));
     };
 
+    const addAddress = (address) => {
+        if (!user) return;
+        const newAddress = { ...address, id: 'addr_' + Date.now() };
+        const currentAddresses = user.addresses || [];
+
+        // If first address, make it default
+        if (currentAddresses.length === 0) newAddress.isDefault = true;
+
+        const updatedAddresses = [...currentAddresses, newAddress];
+        updateUser({ addresses: updatedAddresses });
+        toast.success("Address added successfully");
+    };
+
+    const removeAddress = (addressId) => {
+        if (!user || !user.addresses) return;
+        const updatedAddresses = user.addresses.filter(a => a.id !== addressId);
+        updateUser({ addresses: updatedAddresses });
+        toast.success("Address removed");
+    };
+
+    const setAddressAsDefault = (addressId) => {
+        if (!user || !user.addresses) return;
+        const updatedAddresses = user.addresses.map(a => ({
+            ...a,
+            isDefault: a.id === addressId
+        }));
+        updateUser({ addresses: updatedAddresses });
+        toast.success("Default address updated");
+    };
+
     return (
         <UserContext.Provider value={{
             user,
@@ -113,7 +143,11 @@ export const UserProvider = ({ children }) => {
             loginWithGoogle,
             register,
             logout,
+            logout,
             updateUser,
+            addAddress,
+            removeAddress,
+            setAddressAsDefault,
             isAuthenticated: !!user
         }}>
             {children}

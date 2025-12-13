@@ -1,16 +1,77 @@
 'use client';
 
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { CartContext } from '../context/CartContext';
+import { UserContext } from '../context/UserContext';
+import { OrderContext } from '../context/OrderContext';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle, CreditCard, MapPin, Truck } from 'lucide-react';
+import { CheckCircle, CreditCard, MapPin, Truck, Plus, Home, Briefcase, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const CheckoutPage = () => {
-    const { cart, cartTotal } = useContext(CartContext);
+    const { cart, cartTotal, clearCart } = useContext(CartContext);
+    const { user, addAddress, removeAddress } = useContext(UserContext);
+    const { createOrder } = useContext(OrderContext);
+
     const [success, setSuccess] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState('card');
+    const [paymentMethod, setPaymentMethod] = useState('cash'); // Default to Cash as it's easier for demos
     const [deliveryTime, setDeliveryTime] = useState('asap');
+
+    // Address State
+    const [selectedAddressId, setSelectedAddressId] = useState(null);
+    const [isAddingAddress, setIsAddingAddress] = useState(false);
+
+    // New Address Form State
+    const [newAddress, setNewAddress] = useState({
+        label: 'Home', // Home or Work
+        phone: user?.phone || '',
+        street: '',
+        city: '',
+        area: ''
+    });
+
+    // Auto-select default address
+    useEffect(() => {
+        if (user && user.addresses && user.addresses.length > 0 && !selectedAddressId) {
+            const defaultAddr = user.addresses.find(a => a.isDefault) || user.addresses[0];
+            setSelectedAddressId(defaultAddr.id);
+        }
+    }, [user, selectedAddressId]);
+
+    const handleAddAddress = () => {
+        if (!newAddress.phone || !newAddress.street || !newAddress.city) {
+            toast.error("Please fill in required fields (Phone, Street, City)");
+            return;
+        }
+        addAddress({
+            ...newAddress,
+            type: newAddress.label
+        });
+        setIsAddingAddress(false);
+        // Reset form but keep phone
+        setNewAddress({ ...newAddress, street: '', city: '', area: '' });
+    };
+
+    const handlePlaceOrder = () => {
+        if (!selectedAddressId) {
+            toast.error("Please select a delivery address");
+            return;
+        }
+
+        const deliveryAddress = user.addresses.find(a => a.id === selectedAddressId);
+
+        // Create Order via Context
+        createOrder(cart, cartTotal, {
+            address: deliveryAddress,
+            paymentMethod,
+            deliveryTime
+        });
+
+        // Clear Cart & Show Success
+        clearCart();
+        setSuccess(true);
+    };
 
     if (cart.length === 0 && !success) {
         return (
@@ -26,21 +87,17 @@ const CheckoutPage = () => {
     if (success) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 pt-24 pb-12">
-                <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-green-500/50 shadow-lg">
+                <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-green-500/50 shadow-lg animate-in zoom-in">
                     <CheckCircle className="w-12 h-12 text-white" />
                 </div>
                 <h1 className="text-4xl font-bold text-ashWhite mb-4">Order Placed Successfully!</h1>
                 <p className="text-ashWhite/70 text-lg mb-8 max-w-lg">
                     Thank you for your order. We are preparing your delicious pizza right now.
-                    You can track your order status below.
                 </p>
                 <div className="flex gap-4">
-                    <Link href="/order/123456" className="btn btn-lg bg-primary hover:bg-primaryHover text-white px-8 py-3 rounded-xl font-bold shadow-lg">
-                        Track Order
-                    </Link>
-                    <Link href="/" className="btn btn-lg bg-softBlack text-ashWhite border border-cardBorder px-8 py-3 rounded-xl font-bold hover:bg-white/5">
+                    <button className="btn btn-lg bg-softBlack text-ashWhite border border-cardBorder px-8 py-3 rounded-xl font-bold hover:bg-white/5">
                         Back to Home
-                    </Link>
+                    </button>
                 </div>
             </div>
         )
@@ -59,11 +116,6 @@ const CheckoutPage = () => {
                     <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center">2</span>
                     Checkout
                 </div>
-                <div className="w-8 h-px bg-ashWhite/20"></div>
-                <div className="text-ashWhite/40 flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full border border-ashWhite/40 flex items-center justify-center">3</span>
-                    Tracking
-                </div>
             </div>
 
             <h1 className="text-4xl font-bold mb-8 text-ashWhite uppercase tracking-wide">Checkout</h1>
@@ -74,20 +126,107 @@ const CheckoutPage = () => {
 
                     {/* Delivery Details */}
                     <div className="bg-charcoalBlack rounded-2xl p-6 border border-cardBorder">
-                        <div className="flex items-center gap-3 mb-6">
-                            <MapPin className="text-primary w-6 h-6" />
-                            <h2 className="text-xl font-bold text-ashWhite">Delivery Address</h2>
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <MapPin className="text-primary w-6 h-6" />
+                                <h2 className="text-xl font-bold text-ashWhite">Delivery Address</h2>
+                            </div>
+                            <button
+                                onClick={() => setIsAddingAddress(!isAddingAddress)}
+                                className="text-primary text-sm font-bold flex items-center gap-1 hover:underline"
+                            >
+                                <Plus className="w-4 h-4" /> {isAddingAddress ? 'Cancel' : 'Add New'}
+                            </button>
                         </div>
+
+                        {/* Add Address Form */}
+                        {isAddingAddress && (
+                            <div className="bg-softBlack p-6 rounded-xl border border-primary/30 mb-6 animate-in fade-in slide-in-from-top-4">
+                                <h3 className="font-bold text-ashWhite mb-4">Add New Address</h3>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    <div className="md:col-span-2 flex gap-4 mb-2">
+                                        {['Home', 'Work'].map(type => (
+                                            <button
+                                                key={type}
+                                                onClick={() => setNewAddress({ ...newAddress, label: type })}
+                                                className={`flex-1 py-2 px-4 rounded-lg font-bold border transition-colors ${newAddress.label === type ? 'bg-primary text-white border-primary' : 'bg-charcoalBlack text-ashWhite/60 border-cardBorder'}`}
+                                            >
+                                                {type}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <input
+                                        type="text" placeholder="Phone Number *"
+                                        value={newAddress.phone}
+                                        onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                                        className="input w-full p-3 bg-charcoalBlack border border-cardBorder rounded-lg text-ashWhite focus:border-primary outline-none"
+                                    />
+                                    <input
+                                        type="text" placeholder="City *"
+                                        value={newAddress.city}
+                                        onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                                        className="input w-full p-3 bg-charcoalBlack border border-cardBorder rounded-lg text-ashWhite focus:border-primary outline-none"
+                                    />
+                                    <input
+                                        type="text" placeholder="Street / Building *"
+                                        value={newAddress.street}
+                                        onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+                                        className="input w-full md:col-span-2 p-3 bg-charcoalBlack border border-cardBorder rounded-lg text-ashWhite focus:border-primary outline-none"
+                                    />
+                                    <input
+                                        type="text" placeholder="Area / Landmark"
+                                        value={newAddress.area}
+                                        onChange={(e) => setNewAddress({ ...newAddress, area: e.target.value })}
+                                        className="input w-full md:col-span-2 p-3 bg-charcoalBlack border border-cardBorder rounded-lg text-ashWhite focus:border-primary outline-none"
+                                    />
+                                    <button
+                                        onClick={handleAddAddress}
+                                        className="md:col-span-2 btn bg-primary hover:bg-primaryHover text-white py-3 rounded-lg font-bold shadow-lg"
+                                    >
+                                        Save Address
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Address List */}
                         <div className="grid md:grid-cols-2 gap-4">
-                            <input type="text" placeholder="First Name" className="input w-full p-3 bg-softBlack border border-cardBorder rounded-lg text-ashWhite focus:border-primary outline-none" />
-                            <input type="text" placeholder="Last Name" className="input w-full p-3 bg-softBlack border border-cardBorder rounded-lg text-ashWhite focus:border-primary outline-none" />
-                            <input type="text" placeholder="Address" className="input w-full md:col-span-2 p-3 bg-softBlack border border-cardBorder rounded-lg text-ashWhite focus:border-primary outline-none" />
-                            <input type="text" placeholder="City" className="input w-full p-3 bg-softBlack border border-cardBorder rounded-lg text-ashWhite focus:border-primary outline-none" />
-                            <input type="text" placeholder="Phone Number" className="input w-full p-3 bg-softBlack border border-cardBorder rounded-lg text-ashWhite focus:border-primary outline-none" />
+                            {user?.addresses && user.addresses.length > 0 ? (
+                                user.addresses.map((addr) => (
+                                    <div
+                                        key={addr.id}
+                                        onClick={() => setSelectedAddressId(addr.id)}
+                                        className={`relative p-4 rounded-xl border cursor-pointer transition-all hover:shadow-lg ${selectedAddressId === addr.id ? 'border-primary bg-primary/10' : 'border-cardBorder bg-softBlack'}`}
+                                    >
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className="flex items-center gap-2 font-bold text-ashWhite">
+                                                {addr.label === 'Home' ? <Home className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
+                                                {addr.label}
+                                            </div>
+                                            <button onClick={(e) => { e.stopPropagation(); removeAddress(addr.id); }} className="text-ashWhite/40 hover:text-red-500">
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                        <p className="text-sm text-ashWhite/80">{addr.street}</p>
+                                        <p className="text-sm text-ashWhite/60">{addr.city} {addr.area && `, ${addr.area}`}</p>
+                                        <p className="text-sm text-ashWhite/60 mt-1">📞 {addr.phone}</p>
+
+                                        {selectedAddressId === addr.id && (
+                                            <div className="absolute top-4 right-4 text-primary bg-primary/20 rounded-full p-1"><CheckCircle className="w-4 h-4" /></div>
+                                        )}
+                                    </div>
+                                ))
+                            ) : (
+                                !isAddingAddress && (
+                                    <div className="md:col-span-2 text-center py-8 text-ashWhite/50 bg-softBlack/50 rounded-xl border border-dashed border-cardBorder">
+                                        No addresses found. Add one to proceed!
+                                    </div>
+                                )
+                            )}
                         </div>
                     </div>
 
-                    {/* Delivery Time */}
+                    {/* Delivery Time and Payment (Reused from existing, just simplified logic) */}
                     <div className="bg-charcoalBlack rounded-2xl p-6 border border-cardBorder">
                         <div className="flex items-center gap-3 mb-6">
                             <Truck className="text-primary w-6 h-6" />
@@ -105,7 +244,6 @@ const CheckoutPage = () => {
                         </div>
                     </div>
 
-                    {/* Payment Method */}
                     <div className="bg-charcoalBlack rounded-2xl p-6 border border-cardBorder">
                         <div className="flex items-center gap-3 mb-6">
                             <CreditCard className="text-primary w-6 h-6" />
@@ -172,7 +310,7 @@ const CheckoutPage = () => {
                         </div>
 
                         <button
-                            onClick={() => setSuccess(true)}
+                            onClick={handlePlaceOrder}
                             className="w-full btn btn-lg bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
