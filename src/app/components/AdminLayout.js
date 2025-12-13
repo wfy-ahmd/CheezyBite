@@ -47,6 +47,11 @@ const AdminLayout = ({ children }) => {
         }
     }, [loading, isAuthenticated, userRole, router, pathname]);
 
+    // Optimistic UI: Don't block Login Page with loader
+    if (pathname === '/admin/login') {
+        return <>{children}</>;
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen bg-jetBlack">

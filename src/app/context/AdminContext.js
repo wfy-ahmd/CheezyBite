@@ -32,16 +32,27 @@ export const AdminProvider = ({ children }) => {
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Load initial data
+    // Load initial data with 2s Time Limit Enforcement
     useEffect(() => {
-        setIsAuthenticated(isAdminLoggedIn());
-        setUserRole(getAdminRole());
-        setPizzas(loadPizzas());
-        setToppings(loadToppings());
-        setOrders(loadAllOrders());
-        setAdmins(loadAdmins());
-        setAnalytics(getAnalyticsData());
-        setLoading(false);
+        const loadToState = () => {
+            setIsAuthenticated(isAdminLoggedIn());
+            setUserRole(getAdminRole());
+            setPizzas(loadPizzas());
+            setToppings(loadToppings());
+            setOrders(loadAllOrders());
+            setAdmins(loadAdmins());
+            setAnalytics(getAnalyticsData());
+            setLoading(false);
+        };
+
+        loadToState();
+
+        // Safety fallback: Force disable loading after 2s
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
     }, []);
 
     // Refresh analytics when orders change
