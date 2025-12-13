@@ -96,6 +96,81 @@ const OrderPage = ({ params }) => {
                 </div>
             </div>
 
+    // ... inside OrderPage
+            const [rating, setRating] = useState(0);
+            const [comment, setComment] = useState('');
+            const [isFeedbackSubmitted, setIsFeedbackSubmitted] = useState(false);
+
+    const handleFeedbackSubmit = () => {
+        if (rating === 0) return;
+
+            // Update Order with Feedback
+            const updatedOrder = {...currentOrder, feedback: {rating, comment} };
+
+            // Update Active Context if matches
+            // (Note: In a real app we'd call an API. Here we update localStorage manually for persistence)
+
+            // Update History
+            const history = JSON.parse(localStorage.getItem('cheezybite_orders') || '[]');
+        const updatedHistory = history.map(o => o.id === orderId ? updatedOrder : o);
+        
+        if (!history.find(o => o.id === orderId)) {
+                updatedHistory.push(updatedOrder);
+        }
+
+            localStorage.setItem('cheezybite_orders', JSON.stringify(updatedHistory));
+            setIsFeedbackSubmitted(true);
+    };
+
+            // ... inside return JSX, after Timeline
+
+            {/* Feedback Section - Only if Delivered */}
+            {currentStageIndex >= 4 && (
+                <div className="bg-gradient-to-br from-charcoalBlack to-softBlack border border-cardBorder p-8 rounded-2xl mb-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    {!isFeedbackSubmitted ? (
+                        <>
+                            <h2 className="text-2xl font-bold text-ashWhite mb-2">How was your order?</h2>
+                            <p className="text-ashWhite/60 mb-6">Rate your experience to help us improve.</p>
+
+                            <div className="flex justify-center gap-2 mb-6">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        onClick={() => setRating(star)}
+                                        className={`transition-all hover:scale-110 ${rating >= star ? 'text-yellow-400 fill-yellow-400' : 'text-ashWhite/20'}`}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill={rating >= star ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <textarea
+                                className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-ashWhite focus:border-primary outline-none mb-4 min-h-[100px]"
+                                placeholder="Tell us what you liked..."
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                            />
+
+                            <button
+                                onClick={handleFeedbackSubmit}
+                                disabled={rating === 0}
+                                className="btn btn-lg bg-primary text-white font-bold py-3 px-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Submit Feedback
+                            </button>
+                        </>
+                    ) : (
+                        <div className="py-8">
+                            <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle className="w-8 h-8" />
+                            </div>
+                            <h3 className="text-xl font-bold text-ashWhite">Thank You!</h3>
+                            <p className="text-ashWhite/60">Your feedback has been recorded.</p>
+                        </div>
+                    )}
+                </div>
+            )}
+
             <div className="grid lg:grid-cols-3 gap-8">
                 {/* Help Section */}
                 <div className="lg:col-span-2">
