@@ -6,14 +6,25 @@ import Topping from "./Topping";
 import { CartContext } from "../context/CartContext";
 import { calculatePizzaPrice } from "../utils/priceEngine";
 
-const PizzaDetails = ({ pizza, setModal }) => {
+const PizzaDetails = ({ pizza, setModal, cartItem = null }) => {
   const [size, setSize] = useState('small');
   const [crust, setCrust] = useState('traditional');
   const [additionalTopping, setAdditionalTopping] = useState([]);
   const [price, setPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [spiceLevel, setSpiceLevel] = useState('standard');
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, editCartItem } = useContext(CartContext);
+
+  // Initialize from cartItem if in Edit Mode
+  useEffect(() => {
+    if (cartItem) {
+      setSize(cartItem.size);
+      setCrust(cartItem.crust);
+      setAdditionalTopping(cartItem.additionalTopping || []);
+      setQuantity(cartItem.amount);
+      // We don't track spiceLevel in cart currently, defaulting to standard or adding it later if needed
+    }
+  }, [cartItem]);
 
   // Calculate price using smart price engine
   useEffect(() => {
@@ -37,6 +48,34 @@ const PizzaDetails = ({ pizza, setModal }) => {
 
   const handleIncrease = () => {
     setQuantity(quantity + 1);
+  };
+
+  const handleAction = () => {
+    if (cartItem) {
+      // Edit Mode
+      editCartItem(cartItem.cartLineId, {
+        price,
+        additionalTopping,
+        size,
+        crust,
+        amount: quantity
+      });
+      // Close modal by clearing editing item (handled by parent usually, but setModal works too)
+      setModal(false);
+    } else {
+      // Add Mode
+      addToCart(
+        pizza.id,
+        pizza.image,
+        pizza.name,
+        price,
+        additionalTopping,
+        size,
+        crust,
+        quantity
+      );
+      setModal(false);
+    }
   };
 
   return (
@@ -69,8 +108,8 @@ const PizzaDetails = ({ pizza, setModal }) => {
                   key={level}
                   onClick={() => setSpiceLevel(level)}
                   className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all ${spiceLevel === level
-                      ? 'bg-primary text-white border-2 border-primary'
-                      : 'bg-softBlack text-ashWhite/60 border-2 border-cardBorder hover:border-ashWhite/40'
+                    ? 'bg-primary text-white border-2 border-primary'
+                    : 'bg-softBlack text-ashWhite/60 border-2 border-cardBorder hover:border-ashWhite/40'
                     }`}
                 >
                   {level}
@@ -106,24 +145,11 @@ const PizzaDetails = ({ pizza, setModal }) => {
               <button onClick={handleIncrease} className="w-10 h-10 rounded-full flex items-center justify-center text-ashWhite hover:bg-white/10 font-bold text-xl">+</button>
             </div>
 
-            {/* Add Button */}
+            {/* Add/Update Button */}
             <button
-              onClick={() => {
-                addToCart(
-                  pizza.id,
-                  pizza.image,
-                  pizza.name,
-                  price,
-                  additionalTopping,
-                  size,
-                  crust,
-                  quantity // Pass quantity
-                ),
-                  setModal(false);
-              }
-              }
+              onClick={handleAction}
               className="btn btn-lg gradient flex-1 flex justify-center items-center gap-2 shadow-xl hover:shadow-primary/30">
-              <span className="font-bold">Add {quantity} for</span>
+              <span className="font-bold">{cartItem ? 'Update Order' : 'Add to Cart'}</span>
               <span className="font-bold text-xl">Rs. {(price * quantity).toLocaleString()}</span>
             </button>
           </div>

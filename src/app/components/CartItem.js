@@ -1,10 +1,10 @@
 import Image from "next/image";
 import { useContext } from "react";
-import { Plus, Minus, X } from "lucide-react";
+import { Plus, Minus, X, Edit2 } from "lucide-react";
 import { CartContext } from "../context/CartContext";
 
 const CartItem = ({ pizza }) => {
-  const { removeItem, increaseAmount, decreaseAmount } = useContext(CartContext);
+  const { removeItem, increaseAmount, decreaseAmount, setEditingItem } = useContext(CartContext);
   return (
     <div className="select-none border-b border-cardBorder last:border-0 pb-4">
       <div className="flex gap-x-4 mb-2">
@@ -18,16 +18,21 @@ const CartItem = ({ pizza }) => {
             <div className="capitalize font-medium text-[15px] text-ashWhite/70">{pizza.crust} crust</div>
             <div className="capitalize mb-2 font-medium text-[15px] text-ashWhite/70">{pizza.size} size</div>
             <div className="flex items-center gap-x-1">
-              <div onClick={() => decreaseAmount(pizza.id, pizza.price)} className="w-[18px] h-[18px] flex justify-center items-center cursor-pointer text-white gradient rounded-full"><Minus className="w-3 h-3" /></div>
+              <div onClick={() => decreaseAmount(pizza.cartLineId)} className="w-[18px] h-[18px] flex justify-center items-center cursor-pointer text-white gradient rounded-full"><Minus className="w-3 h-3" /></div>
               <div className="font-semibold flex flex-1 max-w-[30px] justify-center items-center text-sm text-ashWhite">{pizza.amount}</div>
-              <div onClick={() => increaseAmount(pizza.id, pizza.price)} className="w-[18px] h-[18px] flex justify-center items-center cursor-pointer text-white gradient rounded-full"><Plus className="w-3 h-3" /></div>
+              <div onClick={() => increaseAmount(pizza.cartLineId)} className="w-[18px] h-[18px] flex justify-center items-center cursor-pointer text-white gradient rounded-full"><Plus className="w-3 h-3" /></div>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col justify-between">
-          <div onClick={() => removeItem(pizza.id, pizza.price, pizza.crust)} className="text-2xl flex justify-center items-center self-end cursor-pointer hover:scale-110 duration-100 transition-all text-primary hover:text-primaryHover">
-            <X className="w-6 h-6" />
+        <div className="flex flex-col justify-between items-end">
+          <div className="flex gap-3">
+            <div onClick={() => setEditingItem(pizza)} className="text-xl flex justify-center items-center cursor-pointer hover:scale-110 duration-100 transition-all text-ashWhite/60 hover:text-white" title="Edit Item">
+              <Edit2 className="w-5 h-5" />
+            </div>
+            <div onClick={() => removeItem(pizza.cartLineId)} className="text-xl flex justify-center items-center cursor-pointer hover:scale-110 duration-100 transition-all text-primary hover:text-primaryHover" title="Remove Item">
+              <X className="w-6 h-6" />
+            </div>
           </div>
           <div>
             <span className="text-[17px] font-medium font-robotoCondensed text-ashWhite">Rs. {parseFloat(pizza.price * pizza.amount).toLocaleString()}</span>
