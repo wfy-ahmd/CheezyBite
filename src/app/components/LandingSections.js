@@ -72,7 +72,7 @@ export const OffersBanner = () => {
         <section className="container mx-auto px-4 mb-20">
             <div className="bg-gradient-to-r from-primary to-secondary rounded-3xl p-8 lg:p-12 relative overflow-hidden shadow-2xl">
                 {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10 bg-[url('/pattern.png')]"></div>
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
                     <div className="text-center lg:text-left text-white max-w-xl">
