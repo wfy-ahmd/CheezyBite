@@ -14,7 +14,7 @@ const Footer = () => {
               <Image src="/logo.svg" width={160} height={160} alt="CheezyBite" />
             </Link>
             <p className="text-ashWhite/80 text-sm text-center md:text-left max-w-xs">
-              Sri Lanka's favorite pizza destination. Fresh ingredients, authentic flavors, delivered hot to your door.
+              CheezyBite currently delivers only within the Colombo area. Fast, fresh, and reliable pizza delivery.
             </p>
           </div>
 
@@ -33,7 +33,7 @@ const Footer = () => {
             <div className="space-y-2 text-ashWhite/80 text-sm">
               <p>Monday - Friday: 10:00 AM - 11:00 PM</p>
               <p>Saturday - Sunday: 11:00 AM - 12:00 AM</p>
-              <p className="text-secondary font-medium">🚚 Delivery available island-wide</p>
+              <p className="text-secondary font-medium">🚚 Delivery available in Colombo only</p>
             </div>
           </div>
         </div>

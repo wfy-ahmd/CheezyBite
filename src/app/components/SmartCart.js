@@ -118,7 +118,7 @@ const SmartCart = () => {
                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 className={`fixed z-50 bg-charcoalBlack border border-white/10 shadow-2xl overflow-hidden flex flex-col
                     ${isOpen
-                        ? 'bottom-0 left-0 right-0 h-[85vh] lg:h-auto lg:max-h-[85vh] lg:w-[450px] lg:bottom-4 lg:right-4 lg:left-auto rounded-t-[30px] lg:rounded-3xl'
+                        ? 'bottom-0 left-0 right-0 h-[85dvh] lg:h-auto lg:max-h-[85dvh] lg:w-[450px] lg:bottom-4 lg:right-4 lg:left-auto rounded-t-[30px] lg:rounded-3xl'
                         : 'bottom-4 left-4 right-4 lg:left-auto lg:right-8 lg:w-auto h-16 rounded-full cursor-pointer'
                     }
                 `}

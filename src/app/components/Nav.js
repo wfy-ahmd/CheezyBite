@@ -58,7 +58,7 @@ const Nav = () => {
           <div className="lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 -ml-2 rounded-full hover:bg-white/10 transition-all duration-200 text-ashWhite"
+              className="p-2 rounded-full hover:bg-white/10 transition-all duration-200 text-ashWhite"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -66,7 +66,7 @@ const Nav = () => {
           </div>
 
           {/* Center/Left: Logo */}
-          <Link href="/" className="flex items-center gap-2 z-20 hover:opacity-90 transition-opacity">
+          <Link href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:static lg:translate-x-0 lg:translate-y-0 flex items-center gap-2 z-20 hover:opacity-90 transition-opacity">
             <Image src="/logo.svg" width={110} height={36} alt="CheezyBite" priority />
           </Link>
 
@@ -126,7 +126,7 @@ const Nav = () => {
 
         {/* Mobile Menu Dropdown */}
         <div
-          className={`lg:hidden overflow-hidden transition-all duration-300 absolute top-full left-0 w-full bg-charcoalBlack border-t border-white/10 ${mobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+          className={`lg:hidden transition-all duration-300 absolute top-full left-0 w-full bg-charcoalBlack border-t border-white/10 overflow-y-auto ${mobileMenuOpen ? "max-h-[calc(100dvh-80px)] opacity-100" : "max-h-0 opacity-0"
             }`}
         >
           <div className="container mx-auto px-4 py-6 flex flex-col gap-6">

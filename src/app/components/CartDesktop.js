@@ -19,11 +19,11 @@ const CartDesktop = () => {
       {/* Cart Drawer/Sheet */}
       <div className={`fixed z-50 bg-charcoalBlack border-cardBorder shadow-2xl transition-all duration-300 flex flex-col
         /* Mobile: Bottom Sheet */
-        bottom-0 w-full h-[85vh] rounded-t-[30px] border-t lg:border-t-0 lg:rounded-none
+        bottom-0 w-full h-[85dvh] rounded-t-[30px] border-t lg:border-t-0 lg:rounded-none
         ${isOpen ? 'translate-y-0' : 'translate-y-full'}
         
         /* Desktop: Right Drawer */
-        lg:top-0 lg:h-full lg:w-[450px] lg:right-0 lg:left-auto lg:border-l
+        lg:top-0 lg:h-[100dvh] lg:w-[450px] lg:right-0 lg:left-auto lg:border-l
         lg:${isOpen ? 'translate-x-0' : 'translate-x-full'}
       `}>
         <CartTop />

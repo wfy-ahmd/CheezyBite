@@ -54,9 +54,9 @@ const AdminLayout = ({ children }) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-jetBlack">
+            <div className="min-h-[100dvh] bg-jetBlack">
                 <AdminHeader />
-                <div className="flex pt-16 h-screen">
+                <div className="flex pt-16 h-[100dvh]">
                     <aside className="hidden lg:flex lg:flex-col w-64 bg-charcoalBlack border-r border-cardBorder fixed left-0 top-16 bottom-0 p-4 space-y-4">
                         <div className="h-4 w-24 bg-gray-800/50 rounded animate-pulse mb-4"></div>
                         {[...Array(6)].map((_, i) => (
@@ -73,18 +73,18 @@ const AdminLayout = ({ children }) => {
 
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-jetBlack flex items-center justify-center">
+            <div className="min-h-[100dvh] bg-jetBlack flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-jetBlack">
+        <div className="min-h-[100dvh] bg-jetBlack">
             {/* Top Fixed Header */}
             <AdminHeader />
 
-            <div className="flex pt-16 h-screen">
+            <div className="flex pt-16 h-[100dvh]">
                 {/* Sidebar - Desktop */}
                 <aside className="hidden lg:flex lg:flex-col w-64 bg-charcoalBlack border-r border-cardBorder fixed left-0 top-16 bottom-0 overflow-y-auto">
 
