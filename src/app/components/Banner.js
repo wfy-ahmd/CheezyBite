@@ -98,7 +98,7 @@ const Banner = () => {
               {/* Main Pizza Image */}
               <div className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] lg:w-[550px] lg:h-[550px]">
                 <Image
-                  src="/pizza/pizza-3000282_1920.png"
+                  src="/pizzas/pizza17.png"
                   fill
                   sizes="(max-width: 640px) 320px, (max-width: 1024px) 400px, 550px"
                   alt="Delicious freshly baked pizza with premium toppings"

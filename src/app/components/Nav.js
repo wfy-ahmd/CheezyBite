@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useContext, useState, useEffect, useRef } from "react";
 import { CartContext } from "../context/CartContext";
 import { UserContext } from "../context/UserContext";
-import { Menu, X, ShoppingBag, User } from "lucide-react";
+import { Menu, X, User, ShoppingCart } from "lucide-react";
 import AuthModal from "./AuthModal";
 
 const Nav = () => {
@@ -109,11 +109,14 @@ const Nav = () => {
             {/* Cart Icon */}
             <button
               onClick={toggleCart}
-              className="relative p-2 text-ashWhite hover:text-white transition-colors"
+              className="relative w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 transition-all duration-300 flex items-center justify-center group"
             >
-              <ShoppingBag className="w-6 h-6" />
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <ShoppingCart className="w-4 h-4 text-primary" />
+              </div>
+
               {itemAmount > 0 && (
-                <span className={`absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-charcoalBlack transition-transform duration-300 ${cartBounce ? 'scale-125' : 'scale-100'}`}>
+                <span className={`absolute top-0 right-0 bg-primary text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-charcoalBlack transition-transform duration-300 ${cartBounce ? 'scale-125' : 'scale-100'}`}>
                   {itemAmount}
                 </span>
               )}
