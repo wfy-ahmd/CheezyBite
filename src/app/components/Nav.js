@@ -90,19 +90,19 @@ const Nav = () => {
           <div className="flex items-center gap-4">
             {/* Desktop Login / Profile */}
             {user ? (
-              <Link href="/profile" className="hidden lg:flex items-center gap-2 text-ashWhite hover:text-white transition-colors text-sm font-bold uppercase tracking-wide">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/40 overflow-hidden relative">
-                  {user.photo ? <Image src={user.photo} fill alt="User" className="object-cover" /> : <User className="w-4 h-4 text-primary" />}
+              <Link href="/profile" className="hidden lg:flex items-center gap-2 text-ashWhite hover:text-white transition-colors text-sm font-bold uppercase tracking-wide group">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/40 overflow-hidden relative group-hover:border-primary transition-colors">
+                  {user.photo ? <Image src={user.photo} fill alt="User" className="object-cover" /> : <User className="w-4 h-4 text-primary group-hover:text-secondary transition-colors" />}
                 </div>
-                <span>{user.name.split(' ')[0]}</span>
+                <span className="group-hover:text-secondary transition-colors">{user.name.split(' ')[0]}</span>
               </Link>
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="hidden lg:flex items-center gap-2 text-ashWhite hover:text-white transition-colors text-sm font-bold uppercase tracking-wide"
+                className="hidden lg:flex items-center gap-2 text-ashWhite hover:text-white transition-colors text-sm font-bold uppercase tracking-wide group"
               >
-                <User className="w-5 h-5" />
-                <span>Login</span>
+                <User className="w-5 h-5 group-hover:text-secondary transition-colors" />
+                <span className="group-hover:text-secondary transition-colors">Login</span>
               </button>
             )}
 
@@ -112,7 +112,7 @@ const Nav = () => {
               className="relative w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 transition-all duration-300 flex items-center justify-center group"
             >
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <ShoppingCart className="w-4 h-4 text-primary" />
+                <ShoppingCart className="w-4 h-4 text-primary group-hover:text-secondary transition-colors" />
               </div>
 
               {itemAmount > 0 && (

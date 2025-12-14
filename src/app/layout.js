@@ -1,5 +1,5 @@
 import './globals.css';
-import { Bangers, Quicksand, Roboto_Condensed } from 'next/font/google';
+import { Bangers, Quicksand, Roboto_Condensed, Inter, Poppins } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 
 const quicksand = Quicksand({
@@ -19,6 +19,17 @@ const robotoCondensed = Roboto_Condensed({
   weight: ['300', '400', '700'],
 });
 
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+});
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  variable: '--font-poppins',
+  weight: ['400', '500', '600', '700'],
+});
+
 export const metadata = {
   title: 'CheezyBite - Fresh Pizza Delivered',
   description: 'CheezyBite delivers the freshest, most delicious pizzas right to your door. Order online for fast delivery!',
@@ -30,7 +41,7 @@ export default function RootLayout({ children }) {
       <head>
         <title>CheezyBite - Fresh Pizza Delivered</title>
       </head>
-      <body className={`${quicksand.variable} ${bangers.variable} ${robotoCondensed.variable} font-robotoCondensed`} suppressHydrationWarning>
+      <body className={`${quicksand.variable} ${bangers.variable} ${robotoCondensed.variable} ${inter.variable} ${poppins.variable} font-robotoCondensed`} suppressHydrationWarning>
         <Toaster
           position="bottom-right"
           toastOptions={{

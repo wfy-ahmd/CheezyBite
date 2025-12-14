@@ -25,6 +25,8 @@ module.exports = {
         bangers: [`var(--font-bangers)`, 'sans-serif'],
         quicksand: [`var(--font-quicksand)`, 'sans-serif'],
         robotoCondensed: [`var(--font-robotoCondensed)`, 'sans-serif'],
+        inter: [`var(--font-inter)`, 'sans-serif'],
+        poppins: [`var(--font-poppins)`, 'sans-serif'],
       },
       colors: {
         primary: '#E10600', // Fire Red

@@ -35,7 +35,7 @@ const Banner = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="text-4xl sm:text-5xl lg:text-7xl font-bangers text-white drop-shadow-lg leading-snug mb-6"
+              className="text-4xl sm:text-5xl lg:text-7xl font-poppins font-bold text-white drop-shadow-lg leading-snug mb-6"
             >
               Where Every Bite
               <span className="block text-secondary mt-2">Arrives Perfect.</span>
@@ -46,7 +46,7 @@ const Banner = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2, delay: 0.08 }}
-              className="text-white/80 text-lg lg:text-xl font-robotoCondensed mb-8 max-w-sm lg:max-w-lg mx-auto lg:mx-0 leading-relaxed"
+              className="text-white/80 text-lg lg:text-xl font-inter font-medium mb-8 max-w-sm lg:max-w-lg mx-auto lg:mx-0 leading-relaxed"
             >
               30 min delivery · Fresh ingredients · Secure payments
             </motion.p>
@@ -59,7 +59,7 @@ const Banner = () => {
                 whileTap={{ scale: 1.03 }}
                 transition={{ duration: 0.12 }}
                 onClick={scrollToMenu}
-                className="group relative h-16 px-8 bg-primary hover:bg-primaryHover text-white font-bold text-lg rounded-full shadow-lg hover:shadow-primary/50 flex items-center justify-center gap-2"
+                className="group relative h-16 px-8 bg-primary hover:bg-primaryHover text-white font-inter font-semibold text-lg rounded-full shadow-lg hover:shadow-primary/50 flex items-center justify-center gap-2"
               >
                 <span>Order Now</span>
                 <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -73,7 +73,7 @@ const Banner = () => {
                 whileTap={{ scale: 1.03 }}
                 transition={{ duration: 0.12 }}
                 onClick={scrollToMenu}
-                className="px-8 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white font-semibold text-lg rounded-full flex items-center justify-center gap-2"
+                className="px-8 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white font-inter font-semibold text-lg rounded-full flex items-center justify-center gap-2"
               >
                 <span>View Menu</span>
               </motion.button>
