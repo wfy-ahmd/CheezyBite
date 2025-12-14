@@ -1,9 +1,13 @@
-
+import { loadToppings } from './adminStorageHelper';
 
 // 25 Strict Products - No Dynamic Reading
 // Source of Truth: User Provided List
 export function getPizzas() {
-    return [
+    // Load active toppings from admin panel
+    const allToppings = loadToppings();
+    const activeToppings = allToppings.filter(t => t.enabled);
+
+    const pizzas = [
         // --- CHICKEN ---
         {
             id: '1',
@@ -279,4 +283,10 @@ export function getPizzas() {
             toppings: []
         }
     ];
+
+    // Inject active toppings into each pizza
+    return pizzas.map(pizza => ({
+        ...pizza,
+        toppings: activeToppings
+    }));
 }

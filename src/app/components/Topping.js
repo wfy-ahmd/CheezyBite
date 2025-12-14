@@ -48,8 +48,8 @@ const Topping = ({ topping, additionalTopping, setAdditionalTopping }) => {
     <div
       onClick={handleCheckBox}
       className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all mb-2 ${isChecked
-          ? 'bg-softBlack border-primary'
-          : 'bg-transparent border-white/5 hover:bg-white/5'
+        ? 'bg-softBlack border-primary'
+        : 'bg-transparent border-white/5 hover:bg-white/5'
         }`}
     >
       <div className="flex items-center gap-3">
@@ -65,7 +65,7 @@ const Topping = ({ topping, additionalTopping, setAdditionalTopping }) => {
 
         <span className="text-ashWhite font-medium capitalize">{topping.name}</span>
       </div>
-      <span className="text-xs text-ashWhite/60">+ LKR 150</span>
+      <span className="text-xs text-ashWhite/60">+ LKR {topping.price?.toFixed(0) || 150}</span>
     </div>
   )
 };

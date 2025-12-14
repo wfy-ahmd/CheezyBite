@@ -114,6 +114,34 @@ const CheckoutPage = () => {
     }, [selectedAddressId, user]);
 
     const handlePlaceOrder = async () => {
+        // Validate cart items for inactive toppings FIRST
+        const { loadToppings } = await import('../../utils/adminStorageHelper');
+        const currentToppings = loadToppings();
+        const activeToppingIds = new Set(currentToppings.filter(t => t.enabled).map(t => t.id));
+
+        let hasInactiveToppings = false;
+        const updatedCart = cart.map(item => {
+            if (!item.additionalTopping || item.additionalTopping.length === 0) return item;
+
+            const validToppings = item.additionalTopping.filter(topping => activeToppingIds.has(topping.id));
+            if (validToppings.length !== item.additionalTopping.length) {
+                hasInactiveToppings = true;
+                const removedToppings = item.additionalTopping.filter(t => !activeToppingIds.has(t.id));
+                console.warn(`Removed inactive toppings from ${item.name}:`, removedToppings.map(t => t.name).join(', '));
+            }
+
+            return { ...item, additionalTopping: validToppings };
+        });
+
+        if (hasInactiveToppings) {
+            // Update cart to remove inactive toppings
+            const { setCart } = require('../../context/CartContext');
+            toast.error("Some toppings are no longer available and have been removed from your cart. Please review your order.");
+            // Force cart update (this will recalculate prices)
+            window.location.reload(); // Simple solution to refresh cart state
+            return;
+        }
+
         if (!selectedAddressId) {
             toast.error("Please select a delivery address");
             return;
@@ -478,7 +506,14 @@ const CheckoutPage = () => {
                                         <h4 className="text-sm font-bold text-ashWhite leading-snug break-words">{item.name}</h4>
                                         {/* Hide details for drinks/extras marked as standard/bottle */}
                                         {!(item.size === 'standard' && item.crust === 'bottle') && (
-                                            <p className="text-xs text-ashWhite/60 mt-1 leading-normal">{item.size}, {item.crust}</p>
+                                            <>
+                                                <p className="text-xs text-ashWhite/60 mt-1 leading-normal">{item.size}, {item.crust}</p>
+                                                {item.additionalTopping && item.additionalTopping.length > 0 && (
+                                                    <p className="text-xs text-primary/80 mt-1 leading-normal">
+                                                        + {item.additionalTopping.map(t => t.name).join(', ')}
+                                                    </p>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                     <div className="text-sm font-bold text-secondary whitespace-nowrap self-start mt-2">

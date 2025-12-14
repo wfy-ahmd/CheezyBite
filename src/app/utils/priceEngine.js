@@ -39,10 +39,12 @@ export function calculatePizzaPrice(basePrice, size, crust, toppings = []) {
   const crustPrice = CRUST_PRICES[crust?.toLowerCase()] || 0;
   finalPrice += crustPrice;
 
-  // 3. Calculate topping charges (first 3 free, then $2 each)
+  // 3. Calculate topping charges (first 3 free, then use individual prices)
   const toppingCount = toppings.length;
-  const chargeableToppings = Math.max(0, toppingCount - TOPPING_CONFIG.freeCount);
-  const toppingPrice = chargeableToppings * TOPPING_CONFIG.pricePerTopping;
+  const chargeableToppings = toppings.slice(TOPPING_CONFIG.freeCount); // Get toppings after first 3
+  const toppingPrice = chargeableToppings.reduce((sum, topping) => {
+    return sum + (topping.price || TOPPING_CONFIG.pricePerTopping);
+  }, 0);
   finalPrice += toppingPrice;
 
   // Return price rounded to 2 decimal places
@@ -63,8 +65,11 @@ export function getPriceBreakdown(basePrice, size, crust, toppings = []) {
   const crustPrice = CRUST_PRICES[crust?.toLowerCase()] || 0;
 
   const toppingCount = toppings.length;
-  const chargeableToppings = Math.max(0, toppingCount - TOPPING_CONFIG.freeCount);
-  const toppingPrice = chargeableToppings * TOPPING_CONFIG.pricePerTopping;
+  const chargeableToppingsArray = toppings.slice(TOPPING_CONFIG.freeCount);
+  const chargeableToppings = chargeableToppingsArray.length;
+  const toppingPrice = chargeableToppingsArray.reduce((sum, topping) => {
+    return sum + (topping.price || TOPPING_CONFIG.pricePerTopping);
+  }, 0);
 
   return {
     basePrice: parseFloat(sizedPrice.toFixed(2)),
