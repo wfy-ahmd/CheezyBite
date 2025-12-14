@@ -5,7 +5,7 @@ import {
     loadPizzas, savePizzas,
     loadToppings, saveToppings,
     loadAllOrders, saveAllOrders, updateOrderStatus as updateOrderInStorage,
-    isAdminLoggedIn, adminLogin as doAdminLogin, adminLogout as doAdminLogout, getAdminRole,
+    isAdminLoggedIn, adminLogin as doAdminLogin, adminLogout as doAdminLogout, getAdminRole, getAdminUsername,
     loadAdmins, updateAdmin,
     getAnalyticsData,
     DEFAULT_PIZZAS, DEFAULT_TOPPINGS
@@ -25,6 +25,7 @@ export const useAdmin = () => {
 export const AdminProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userRole, setUserRole] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
     const [pizzas, setPizzas] = useState([]);
     const [toppings, setToppings] = useState([]);
     const [orders, setOrders] = useState([]);
@@ -35,10 +36,20 @@ export const AdminProvider = ({ children }) => {
     // Load initial data with 2s Time Limit Enforcement
     useEffect(() => {
         const loadToState = () => {
-            setIsAuthenticated(isAdminLoggedIn());
+            const isAuth = isAdminLoggedIn();
+            setIsAuthenticated(isAuth);
+            if (isAuth) {
+                const role = getAdminRole();
+                const username = getAdminUsername();
+                setUserRole(role);
+                setCurrentUser({
+                    username: username,
+                    email: `${username}@cheezybite.com`
+                });
+            }
             setUserRole(getAdminRole());
             setPizzas(loadPizzas());
-            setToppings(loadToppings());
+            toppings, setToppings(loadToppings());
             setOrders(loadAllOrders());
             setAdmins(loadAdmins());
             setAnalytics(getAnalyticsData());
@@ -68,6 +79,10 @@ export const AdminProvider = ({ children }) => {
         setIsAuthenticated(success);
         if (success) {
             setUserRole(getAdminRole());
+            setCurrentUser({
+                username: username,
+                email: `${username}@cheezybite.com`
+            });
             setAdmins(loadAdmins()); // Refresh access times
             toast.success('Welcome back, Admin!');
         } else {
@@ -80,6 +95,7 @@ export const AdminProvider = ({ children }) => {
         doAdminLogout();
         setIsAuthenticated(false);
         setUserRole(null);
+        setCurrentUser(null);
         toast.success('Logged out successfully');
     }, []);
 
@@ -211,6 +227,7 @@ export const AdminProvider = ({ children }) => {
         // Auth
         isAuthenticated,
         userRole,
+        currentUser,
         login,
         logout,
         admins,

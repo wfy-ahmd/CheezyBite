@@ -236,9 +236,9 @@ export function isAdminLoggedIn() {
     }
 }
 
-export function getAdminRole() {
+export function getAdminUsername() {
     if (!isBrowser()) return null;
-    return localStorage.getItem(ADMIN_AUTH_KEY + '_role');
+    return localStorage.getItem(ADMIN_AUTH_KEY + '_username');
 }
 
 export function adminLogin(username, password) {
@@ -251,6 +251,7 @@ export function adminLogin(username, password) {
         // Success
         localStorage.setItem(ADMIN_AUTH_KEY, 'true');
         localStorage.setItem(ADMIN_AUTH_KEY + '_role', admin.role);
+        localStorage.setItem(ADMIN_AUTH_KEY + '_username', admin.username);
 
         // Update Last Login
         updateAdmin(admin.id, { lastLogin: Date.now() });
@@ -265,6 +266,7 @@ export function adminLogout() {
     if (!isBrowser()) return;
     localStorage.removeItem(ADMIN_AUTH_KEY);
     localStorage.removeItem(ADMIN_AUTH_KEY + '_role');
+    localStorage.removeItem(ADMIN_AUTH_KEY + '_username');
 }
 
 // ============ ANALYTICS DATA ============
@@ -343,7 +345,7 @@ export default {
     loadPizzas, savePizzas,
     loadToppings, saveToppings,
     loadAllOrders, saveAllOrders, addOrder, updateOrderStatus,
-    isAdminLoggedIn, adminLogin, adminLogout, getAdminRole,
+    isAdminLoggedIn, adminLogin, adminLogout, getAdminRole, getAdminUsername,
     loadAdmins, saveAdmins, updateAdmin,
     getAnalyticsData,
     DEFAULT_PIZZAS, DEFAULT_TOPPINGS

@@ -10,7 +10,7 @@ import {
 import { useState } from 'react';
 
 export default function AdminHeader() {
-    const { logout, userRole } = useAdmin();
+    const { logout, userRole, currentUser } = useAdmin();
     const router = useRouter();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -76,11 +76,11 @@ export default function AdminHeader() {
                         onClick={() => setIsProfileOpen(!isProfileOpen)}
                         className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-white/5 transition-colors border border-transparent hover:border-cardBorder"
                     >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-white font-bold text-xs shadow-lg">
-                            {userRole === 'Super Admin' ? 'SA' : 'MA'}
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-white font-bold text-xs shadow-lg uppercase">
+                            {currentUser?.username?.substring(0, 2) || (userRole === 'Super Admin' ? 'SA' : 'MA')}
                         </div>
                         <div className="hidden md:block text-left mr-1">
-                            <div className="text-sm font-medium text-ashWhite leading-none mb-0.5">Admin User</div>
+                            <div className="text-sm font-medium text-ashWhite leading-none mb-0.5 capitalize">{currentUser?.username || 'Admin User'}</div>
                             <div className="text-[10px] text-primary font-semibold uppercase tracking-wide">{userRole || 'Admin'}</div>
                         </div>
                         <ChevronDown className={`w-4 h-4 text-ashWhite/40 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
@@ -96,7 +96,7 @@ export default function AdminHeader() {
                             <div className="absolute right-0 top-full mt-2 w-56 bg-charcoalBlack border border-cardBorder rounded-xl shadow-2xl z-50 overflow-hidden py-1">
                                 <div className="px-4 py-3 border-b border-white/5">
                                     <p className="text-sm font-medium text-ashWhite">Signed in as</p>
-                                    <p className="text-xs text-ashWhite/50 truncate">admin@cheezybite.com</p>
+                                    <p className="text-xs text-ashWhite/50 truncate font-mono">{currentUser?.email || 'admin@cheezybite.com'}</p>
                                 </div>
                                 <div className="py-1">
                                     <Link href="/admin/settings" className="flex items-center gap-2 px-4 py-2 text-sm text-ashWhite/70 hover:text-ashWhite hover:bg-white/5">
