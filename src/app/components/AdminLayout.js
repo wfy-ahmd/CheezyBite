@@ -7,9 +7,16 @@ import Link from 'next/link';
 import { Home, PieChart, ShoppingBag, Settings, LogOut, Menu, X, Layers, Package, Pizza as PizzaIcon, Users, ShieldAlert } from 'lucide-react';
 import AdminHeader from '../components/AdminHeader';
 
-const AdminLayout = ({ children }) => {
+const AdminLayout = ({ children, setSidebarOpen: externalSetSidebarOpen }) => {
     const { isAuthenticated, userRole, logout, loading } = useAdmin();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // Expose setSidebarOpen to parent if provided
+    useEffect(() => {
+        if (externalSetSidebarOpen) {
+            externalSetSidebarOpen(setSidebarOpen);
+        }
+    }, [externalSetSidebarOpen]);
     const router = useRouter();
     const pathname = usePathname();
 
@@ -55,7 +62,7 @@ const AdminLayout = ({ children }) => {
     if (loading) {
         return (
             <div className="min-h-[100dvh] bg-jetBlack">
-                <AdminHeader />
+                <AdminHeader onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
                 <div className="flex pt-16 h-[100dvh]">
                     <aside className="hidden lg:flex lg:flex-col w-64 bg-charcoalBlack border-r border-cardBorder fixed left-0 top-16 bottom-0 p-4 space-y-4">
                         <div className="h-4 w-24 bg-gray-800/50 rounded animate-pulse mb-4"></div>
@@ -82,11 +89,19 @@ const AdminLayout = ({ children }) => {
     return (
         <div className="min-h-[100dvh] bg-jetBlack">
             {/* Top Fixed Header */}
-            <AdminHeader />
+            <AdminHeader onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
             <div className="flex pt-16 h-[100dvh]">
+                {/* Mobile Overlay */}
+                {sidebarOpen && (
+                    <div
+                        className="fixed inset-0 bg-black/60 z-40 lg:hidden transition-opacity duration-300"
+                        onClick={() => setSidebarOpen(false)}
+                    />
+                )}
+
                 {/* Sidebar - Desktop */}
-                <aside className="hidden lg:flex lg:flex-col w-64 bg-charcoalBlack border-r border-cardBorder fixed left-0 top-16 bottom-0 overflow-y-auto">
+                <aside className="hidden lg:flex lg:flex-col w-64 bg-charcoalBlack border-r border-cardBorder fixed left-0 top-16 bottom-0 overflow-y-auto z-30">
 
                     <div className="px-4 py-6">
                         <div className="text-xs font-semibold text-ashWhite/40 uppercase tracking-widest pl-2 mb-2">Main Menu</div>
@@ -95,6 +110,34 @@ const AdminLayout = ({ children }) => {
                                 <Link
                                     key={item.name}
                                     href={item.href}
+                                    className="flex items-center gap-3 px-4 py-3 text-ashWhite/70 hover:text-ashWhite hover:bg-white/5 rounded-lg transition-all group"
+                                >
+                                    <item.icon className="w-5 h-5 text-ashWhite/40 group-hover:text-primary transition-colors" />
+                                    <span className="font-medium">{item.name}</span>
+                                </Link>
+                            ))}
+                        </nav>
+                    </div>
+
+                    <div className="mt-auto p-4 border-t border-cardBorder">
+                        <Link href="/" target="_blank" className="flex items-center gap-3 px-4 py-3 text-ashWhite/50 hover:text-ashWhite hover:bg-white/5 rounded-lg transition-colors mb-2">
+                            <ShoppingBag className="w-5 h-5" />
+                            <span>View Live Shop</span>
+                        </Link>
+                    </div>
+                </aside>
+
+                {/* Sidebar - Mobile/Tablet (Slide-in) */}
+                <aside className={`lg:hidden flex flex-col w-64 bg-charcoalBlack border-r border-cardBorder fixed left-0 top-16 bottom-0 overflow-y-auto z-50 transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}>
+                    <div className="px-4 py-6">
+                        <div className="text-xs font-semibold text-ashWhite/40 uppercase tracking-widest pl-2 mb-2">Main Menu</div>
+                        <nav className="space-y-1">
+                            {navItems.map((item) => (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    onClick={() => setSidebarOpen(false)}
                                     className="flex items-center gap-3 px-4 py-3 text-ashWhite/70 hover:text-ashWhite hover:bg-white/5 rounded-lg transition-all group"
                                 >
                                     <item.icon className="w-5 h-5 text-ashWhite/40 group-hover:text-primary transition-colors" />

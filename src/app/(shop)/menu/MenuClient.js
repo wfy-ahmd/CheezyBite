@@ -78,9 +78,9 @@ export default function MenuClient({ initialPizzas = [] }) {
         <div className='min-h-screen bg-charcoalBlack'>
 
             {/* Page Header */}
-            <div className="bg-softBlack border-b border-cardBorder pt-24 pb-8 sticky top-0 z-30 shadow-xl">
+            <div className="bg-softBlack border-b border-cardBorder py-4 md:py-6 sticky top-16 z-30 shadow-xl">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-3 mb-3">
                         <h1 className="text-4xl font-bangers text-ashWhite tracking-wide">Our Menu</h1>
 
                         {/* Search & Sort Controls */}
@@ -111,7 +111,7 @@ export default function MenuClient({ initialPizzas = [] }) {
                     </div>
 
                     {/* Category Tabs */}
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                         {categories.map(cat => (
                             <button
                                 key={cat.id}

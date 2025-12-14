@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-export default function AdminHeader() {
+export default function AdminHeader({ onMenuToggle }) {
     const { logout, userRole, currentUser } = useAdmin();
     const router = useRouter();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -22,8 +22,17 @@ export default function AdminHeader() {
     return (
         <header className="bg-charcoalBlack border-b border-cardBorder h-16 fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 shadow-sm">
 
-            {/* LEFT: Brand */}
+            {/* LEFT: Hamburger (Mobile/Tablet) + Brand */}
             <div className="flex items-center gap-4 w-64">
+                {/* Hamburger Menu - Mobile/Tablet Only */}
+                <button
+                    onClick={onMenuToggle}
+                    className="lg:hidden p-2 rounded-lg hover:bg-white/5 transition-colors text-ashWhite"
+                    aria-label="Toggle menu"
+                >
+                    <Menu className="w-5 h-5" />
+                </button>
+
                 <Link href="/admin" className="flex items-center gap-2 group">
                     <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                         <Pizza className="w-5 h-5 text-primary" />
