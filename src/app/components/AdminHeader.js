@@ -63,10 +63,12 @@ export default function AdminHeader() {
             {/* RIGHT: Actions & Profile */}
             <div className="flex items-center gap-4 justify-end w-64">
                 {/* Notifications */}
-                <button className="relative p-2 text-ashWhite/60 hover:text-ashWhite hover:bg-white/5 rounded-full transition-colors">
-                    <Bell className="w-5 h-5" />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border-2 border-charcoalBlack"></span>
-                </button>
+                <Link href="/admin/notifications">
+                    <button className="relative p-2 text-ashWhite/60 hover:text-ashWhite hover:bg-white/5 rounded-full transition-colors">
+                        <Bell className="w-5 h-5" />
+                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full border-2 border-charcoalBlack"></span>
+                    </button>
+                </Link>
 
                 {/* Profile Dropdown */}
                 <div className="relative">

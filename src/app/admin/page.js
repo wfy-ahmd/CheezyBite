@@ -178,7 +178,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Reviews Section */}
-            <AdminCard variant="purple" title="Recent Feedback" icon={Star}>
+            <AdminCard title="Recent Feedback" icon={Star} className="!bg-slate-900/40 !border-slate-700/50 !bg-none">
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
                     {[
                         { name: 'Ruwan Perera', comment: 'Best pizza in Colombo! The cheese layer is amazing.', rating: 5, time: '2 mins ago', initial: 'R', color: 'bg-blue-600' },
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
                         { name: 'S. Mahendran', comment: 'Authentic flavors, really good value for money. Keep it up!', rating: 5, time: '1 hour ago', initial: 'S', color: 'bg-purple-600' },
                         { name: 'Mohamed Nazeem', comment: 'Delivery was very fast. Hot and spicy just like we like it.', rating: 5, time: '2 hours ago', initial: 'M', color: 'bg-green-600' }
                     ].map((review, i) => (
-                        <div key={i} className="bg-black/20 p-4 rounded-xl border border-white/5 hover:border-purple-500/30 transition-colors">
+                        <div key={i} className="bg-slate-900/40 p-4 rounded-xl border border-slate-700/50 hover:bg-slate-900/60 transition-colors">
                             <div className="flex items-center gap-3 mb-2">
                                 <div className={`w-8 h-8 rounded-full ${review.color} flex items-center justify-center text-white font-bold text-xs ring-2 ring-white/10`}>
                                     {review.initial}

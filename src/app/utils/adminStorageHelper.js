@@ -289,9 +289,15 @@ export function getAnalyticsData() {
 
     // Popular pizzas (count occurrences)
     const pizzaCounts = {};
+    // Create a Set of valid pizza names for fast lookup
+    const validPizzaNames = new Set(pizzas.map(p => p.name));
+
     orders.forEach(order => {
         (order.items || []).forEach(item => {
-            pizzaCounts[item.name] = (pizzaCounts[item.name] || 0) + item.amount;
+            // Only count if it matches a known pizza name
+            if (validPizzaNames.has(item.name)) {
+                pizzaCounts[item.name] = (pizzaCounts[item.name] || 0) + item.amount;
+            }
         });
     });
 
