@@ -18,9 +18,10 @@ export default function AnalyticsPage() {
     const sizeCounts = { small: 0, medium: 0, large: 0 };
     (orders || []).forEach(order => {
         (order.items || []).forEach(item => {
-            if (item.size === 'small') sizeCounts.small += item.amount;
-            else if (item.size === 'medium') sizeCounts.medium += item.amount;
-            else if (item.size === 'large') sizeCounts.large += item.amount;
+            const size = (item.size || '').toLowerCase();
+            if (size === 'small') sizeCounts.small += item.amount;
+            else if (size === 'medium' || size === 'regular') sizeCounts.medium += item.amount;
+            else if (size === 'large') sizeCounts.large += item.amount;
         });
     });
     const totalSizes = sizeCounts.small + sizeCounts.medium + sizeCounts.large;

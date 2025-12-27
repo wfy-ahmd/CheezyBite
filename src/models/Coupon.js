@@ -75,7 +75,7 @@ const couponSchema = new mongoose.Schema(
 );
 
 // Index for efficient lookups
-couponSchema.index({ code: 1 });
+// couponSchema.index({ code: 1 }); // Removed to prevent duplicate index warning (unique: true handles this)
 couponSchema.index({ active: 1, expiresAt: 1 });
 
 export default mongoose.models.Coupon || mongoose.model('Coupon', couponSchema);

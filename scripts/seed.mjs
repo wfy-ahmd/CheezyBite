@@ -11,13 +11,15 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 // Import Models (Must use .js extension in Node ESM)
-import dbConnect from '../src/lib/dbConnect.js';
-import User from '../src/models/User.js';
-import Admin from '../src/models/Admin.js';
-import Pizza from '../src/models/Pizza.js';
-import Topping from '../src/models/Topping.js';
-import Order from '../src/models/Order.js';
-import Offer from '../src/models/Offer.js';
+// Import Models (Must use .js extension in Node ESM)
+// Using dynamic imports to ensure dotenv loads environment variables first
+const dbConnect = (await import('../src/lib/dbConnect.js')).default;
+const User = (await import('../src/models/User.js')).default;
+const Admin = (await import('../src/models/Admin.js')).default;
+const Pizza = (await import('../src/models/Pizza.js')).default;
+const Topping = (await import('../src/models/Topping.js')).default;
+const Order = (await import('../src/models/Order.js')).default;
+const Offer = (await import('../src/models/Offer.js')).default;
 
 // Default Data (Inlined for script compatibility)
 const DEFAULT_TOPPINGS = [
@@ -48,7 +50,7 @@ const DEFAULT_PIZZAS = [
     { id: 14, name: 'Chicken Tikka Fusion', description: 'Indian-style tikka chicken with creamy cheese.', image: '/pizzas/pizza14.jpg', priceSm: 1500, priceMd: 1900, priceLg: 2500, category: 'Chicken', tags: ['Chicken', 'Spicy'], rating: 4.8, ratingCount: 1300, enabled: true, toppingIds: [1, 2, 3, 4, 5] },
     { id: 15, name: 'Chicken Dominican', description: 'Delightful combination of grilled chicken and sweet corn.', image: '/pizzas/pizza15.jpg', priceSm: 1450, priceMd: 1850, priceLg: 2450, category: 'Chicken', tags: ['Chicken'], rating: 4.6, ratingCount: 1050, enabled: true, toppingIds: [1, 2, 3, 4, 5] },
     { id: 16, name: 'Veggie Feast', description: 'Onion, capsicum, mushroom, and paneer.', image: '/pizzas/pizza16.jpg', priceSm: 1250, priceMd: 1650, priceLg: 2150, category: 'Veg', tags: ['Veg'], rating: 4.3, ratingCount: 650, enabled: true, toppingIds: [1, 2, 3, 4, 5] },
-    { id: 17, name: 'Spicy Triple Tango', description: 'Corn, jalapeno, and red paprika with spicy sauce.', image: '/pizzas/pizza17.png', priceSm: 1350, priceMd: 1750, priceLg: 2250, category: 'Spicy', tags: ['Spicy', 'Veg'], rating: 4.7, ratingCount: 890, enabled: true, toppingIds: [1, 2, 3, 4, 5] },
+    { id: 17, name: 'Spicy Triple Tango', description: 'Corn, jalapeno, and red paprika with spicy sauce.', image: '/pizzas/pizza17.jpg', priceSm: 1350, priceMd: 1750, priceLg: 2250, category: 'Spicy', tags: ['Spicy', 'Veg'], rating: 4.7, ratingCount: 890, enabled: true, toppingIds: [1, 2, 3, 4, 5] },
     { id: 18, name: 'Chicken Golden Delight', description: 'Double pepper barbecue chicken and golden corn.', image: '/pizzas/pizza18.jpg', priceSm: 1500, priceMd: 1900, priceLg: 2500, category: 'Chicken', tags: ['Chicken'], rating: 4.9, ratingCount: 1400, enabled: true, toppingIds: [1, 2, 3, 4, 5] },
     { id: 19, name: 'Double Cheese Margherita', description: 'Classic delight with extra 100% real mozzarella cheese.', image: '/pizzas/pizza19.jpg', priceSm: 1300, priceMd: 1700, priceLg: 2200, category: 'Cheese', tags: ['Cheese'], rating: 4.8, ratingCount: 2200, enabled: true, toppingIds: [1, 2, 3, 4, 5] },
     { id: 20, name: 'Veggie Crunch', description: 'Crispy capsicum, onion, and fresh tomato.', image: '/pizzas/pizza20.jpg', priceSm: 1150, priceMd: 1550, priceLg: 1950, category: 'Veg', tags: ['Veg'], rating: 4.4, ratingCount: 580, enabled: true, toppingIds: [1, 2, 3, 4, 5] },
@@ -138,7 +140,7 @@ async function seedDatabase() {
                 email: 'test@cheezybite.lk',
                 password: await bcrypt.hash('test123', 10),
                 name: 'Test Customer',
-                phone: '+94 77 123 4567',
+                phone: '+94771234567',
                 phone_verified: true,
                 addresses: [
                     {
@@ -147,7 +149,7 @@ async function seedDatabase() {
                         street: '123 Galle Road',
                         city: 'Colombo',
                         area: 'Bambalapitiya',
-                        phone: '+94 77 123 4567',
+                        phone: '+94771234567',
                         isDefault: true
                     }
                 ]

@@ -336,6 +336,9 @@ export const AdminProvider = ({ children }) => {
                 // Listen for new orders
                 adminSocket.on('order:created', (data) => {
                     console.log('New order received via socket:', data);
+                    // Refresh analytics to keep dashboard metrics in sync
+                    refreshData();
+
                     // If full order object sent, add it to orders list
                     if (data.order) {
                         setOrders(prevOrders => [data.order, ...prevOrders]);

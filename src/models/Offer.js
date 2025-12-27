@@ -92,6 +92,6 @@ const OfferSchema = new mongoose.Schema({
 });
 
 // Index for faster lookups by code
-OfferSchema.index({ code: 1 });
+// OfferSchema.index({ code: 1 }); // Removed to prevent duplicate index warning (unique: true handles this)
 
 module.exports = mongoose.models.Offer || mongoose.model('Offer', OfferSchema);

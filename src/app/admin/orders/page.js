@@ -70,7 +70,8 @@ export default function OrdersPage() {
                 </div>
             ) : (
                 <div className="space-y-4">
-                    {/* API already returns orders sorted newest first (createdAt: -1) */}\n                    {filteredOrders.map((order) => (
+                    {/* API already returns orders sorted newest first (createdAt: -1) */}
+                    {filteredOrders.map((order) => (
                         <div
                             key={order.id}
                             className={`bg-gray-800 rounded-xl border overflow-hidden ${order.currentStage === -1 ? 'border-red-500/30' : 'border-gray-700'}`}
