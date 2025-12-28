@@ -4,7 +4,8 @@
   "description": "CheezyBite - Online Pizza Ordering App",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev:clean": "powershell -ExecutionPolicy Bypass -File ./scripts/dev-clean.ps1",
+    "dev": "npm run dev:clean && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -13,7 +14,7 @@
     "test:coverage": "jest --coverage",
     "server": "node server/index.js",
     "seed": "node scripts/seed.mjs",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
+    "dev:all": "npm run dev:clean && concurrently \"npm run dev\" \"npm run server\"",
     "db:reset": "node scripts/resetDatabase.js"
   },
   "dependencies": {

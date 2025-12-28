@@ -1,0 +1,32 @@
+{
+    "name": "cheezybite-backend",
+    "version": "1.0.0",
+    "description": "CheezyBite Backend - Socket.IO Server",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "node index.js"
+    },
+    "keywords": [
+        "socket.io",
+        "express",
+        "real-time"
+    ],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^5.2.1",
+        "socket.io": "^4.8.1",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "mongoose": "^9.0.1",
+        "mongodb": "^7.0.0",
+        "bcryptjs": "^3.0.3",
+        "jsonwebtoken": "^9.0.3",
+        "resend": "^6.6.0"
+    },
+    "engines": {
+        "node": ">=18.0.0",
+        "npm": ">=9.0.0"
+    }
+}

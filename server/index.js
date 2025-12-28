@@ -160,6 +160,16 @@ module.exports = {
 // Start server if run directly
 if (require.main === module) {
     const PORT = process.env.SOCKET_IO_PORT || 4000;
+
+    // Add error handling for port conflicts
+    server.on('error', (e) => {
+        if (e.code === 'EADDRINUSE') {
+            console.error(`\n❌ Error: Port ${PORT} is already in use.`);
+            console.error(`💡 Suggestion: Please stop the existing server on port ${PORT} or run 'npm run dev:clean'.\n`);
+            process.exit(1);
+        }
+    });
+
     server.listen(PORT, () => {
         console.log(`🚀 Socket.IO Server running on http://localhost:${PORT}`);
         console.log(`📡 Accepting connections from: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}`);
