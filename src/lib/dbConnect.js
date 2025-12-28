@@ -27,11 +27,20 @@ async function dbConnect() {
             bufferCommands: false,
         };
 
+        console.log('📡 Connecting to MongoDB...');
         cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
             console.log('✅ MongoDB connected successfully');
+            console.log(`📊 Database: ${mongoose.connection.name}`);
             return mongoose;
         }).catch((error) => {
-            console.error('❌ MongoDB connection error:', error);
+            console.error('❌ MongoDB connection error:');
+            console.error('Error name:', error.name);
+            console.error('Error message:', error.message);
+            if (error.reason) {
+                console.error('Error reason:', error.reason);
+            }
+            // Clear the promise so next attempt will retry
+            cached.promise = null;
             throw error;
         });
     }
