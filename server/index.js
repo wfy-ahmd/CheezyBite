@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -171,7 +172,9 @@ module.exports = {
 
 // Start server if run directly
 if (require.main === module) {
-    const PORT = process.env.SOCKET_IO_PORT || 4000;
+    // Railway uses PORT, local dev uses SOCKET_IO_PORT
+    const PORT = process.env.PORT || process.env.SOCKET_IO_PORT || 4000;
+    const HOST = process.env.HOST || '0.0.0.0'; // Required for Railway
 
     // Add error handling for port conflicts
     server.on('error', (e) => {
@@ -182,8 +185,9 @@ if (require.main === module) {
         }
     });
 
-    server.listen(PORT, () => {
-        console.log(`🚀 Socket.IO Server running on http://localhost:${PORT}`);
+    server.listen(PORT, HOST, () => {
+        console.log(`🚀 Socket.IO Server running on http://${HOST}:${PORT}`);
         console.log(`📡 Accepting connections from: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
 }
