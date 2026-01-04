@@ -2,16 +2,17 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 // import { getPizzas } from '../../../utils/pizzaStore';
 import PizzaClient from './PizzaClient';
-import { headers } from 'next/headers';
 
 async function getData(id) {
     try {
-        const headersList = await headers();
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+        // For server-side rendering, use VERCEL_URL in production or localhost in dev
+        const baseUrl = process.env.VERCEL_URL 
+            ? `https://${process.env.VERCEL_URL}/api`
+            : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api');
 
         const [pizzaRes, toppingsRes] = await Promise.all([
-            fetch(`${baseUrl}/pizzas/${id}`, { cache: 'no-store', headers: headersList }),
-            fetch(`${baseUrl}/toppings`, { cache: 'no-store', headers: headersList })
+            fetch(`${baseUrl}/pizzas/${id}`, { cache: 'no-store' }),
+            fetch(`${baseUrl}/toppings`, { cache: 'no-store' })
         ]);
 
         if (pizzaRes.status === 404) return null;
