@@ -1,20 +1,46 @@
 import { Resend } from 'resend';
 
-// Initialize Resend client
-const resend = (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.startsWith('re_123'))
-    ? new Resend(process.env.RESEND_API_KEY)
-    : null;
+// Lazy-initialized Resend client (initialized on first use, not at module load)
+let resendClient = null;
+
+function getResendClient() {
+    // Re-check env var on each call to handle serverless cold starts
+    const apiKey = process.env.RESEND_API_KEY;
+    
+    if (!apiKey) {
+        console.error('❌ RESEND_API_KEY is not set in environment variables');
+        return null;
+    }
+    
+    if (apiKey.startsWith('re_123')) {
+        console.warn('⚠️ Using placeholder RESEND_API_KEY - emails will not be sent');
+        return null;
+    }
+    
+    // Only create client once per runtime (but check env each time)
+    if (!resendClient) {
+        resendClient = new Resend(apiKey);
+        console.log('✅ Resend client initialized successfully');
+    }
+    
+    return resendClient;
+}
 
 export const sendEmailCurrent = async (to, subject, html) => {
     try {
         console.log('📬 sendEmailCurrent called - To:', to, 'Subject:', subject);
         console.log('📬 RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
-        console.log('📬 Resend client initialized:', !!resend);
+        
+        const resend = getResendClient();
+        console.log('📬 Resend client available:', !!resend);
         
         if (!resend) {
-            console.warn("⚠️ Placeholder or Missing RESEND_API_KEY. Email simulation only.");
-            console.log(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);
-            return { success: true, id: 'mock_id_' + Date.now() };
+            // In production, this is a real error - don't pretend success
+            console.error("❌ Cannot send email: RESEND_API_KEY missing or invalid");
+            return { 
+                success: false, 
+                error: 'Email service not configured. Please contact support.' 
+            };
         }
 
         const fromEmail = process.env.RESEND_FROM_EMAIL || 'CheezyBite <onboarding@resend.dev>';

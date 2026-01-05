@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import { X, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { X, Mail, Lock, User, ArrowRight, RefreshCw } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { authService } from '../../services/authService';
 import Link from 'next/link';
@@ -42,6 +42,30 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
     const [step, setStep] = useState('details'); // 'details' | 'otp'
     const [otp, setOtp] = useState('');
     const [isVerifying, setIsVerifying] = useState(false);
+    const [resendTimer, setResendTimer] = useState(0);
+
+    // Resend timer countdown
+    useEffect(() => {
+        let interval;
+        if (resendTimer > 0) {
+            interval = setInterval(() => {
+                setResendTimer((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [resendTimer]);
+
+    const handleResendOtp = async () => {
+        if (resendTimer > 0) return;
+        try {
+            const purpose = isLogin ? 'email_verification' : 'signup';
+            await authService.requestOtp(formData.email, purpose);
+            setResendTimer(60);
+            toast.success('Verification code sent!');
+        } catch (err) {
+            toast.error(err.message || 'Failed to resend code');
+        }
+    };
 
     const handleAuthAction = async (e) => {
         e.preventDefault();
@@ -56,9 +80,11 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
             } else if (result.requireVerification) {
                 try {
                     await authService.requestOtp(formData.email, 'email_verification');
+                    setResendTimer(60);
                     setStep('otp');
                 } catch (err) {
                     console.error("Failed to send OTP", err);
+                    toast.error(err.message || 'Failed to send verification code');
                 }
             }
         } else {
@@ -71,11 +97,13 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                     if (result.requireVerification) {
                         try {
                             await authService.requestOtp(formData.email, 'signup');
+                            setResendTimer(60);
                             setStep('otp');
                         } catch (err) {
                             console.error("Failed to send OTP", err);
-                            toast.error("Account created but failed to send OTP. Try logging in.");
-                            setIsLogin(true);
+                            toast.error(err.message || 'Failed to send verification code. You can try resending.');
+                            // Still show OTP step so user can resend
+                            setStep('otp');
                         }
                     } else {
                         if (onSuccess) onSuccess();
@@ -171,8 +199,23 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                             />
                         </div>
                         <button disabled={isVerifying} type="submit" className="w-full btn btn-lg bg-primary hover:bg-primaryHover text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2 mt-6 disabled:opacity-50">
-                            {isVerifying ? 'Verifying...' : 'Verify & Check Code'}
+                            {isVerifying ? 'Verifying...' : 'Verify Code'}
                         </button>
+                        <div className="text-center mt-4">
+                            {resendTimer > 0 ? (
+                                <p className="text-xs text-ashWhite/40 font-mono">
+                                    Resend code in 00:{resendTimer < 10 ? `0${resendTimer}` : resendTimer}
+                                </p>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={handleResendOtp}
+                                    className="text-sm text-primary font-bold hover:underline flex items-center justify-center gap-2 mx-auto"
+                                >
+                                    <RefreshCw className="w-3 h-3" /> Resend Code
+                                </button>
+                            )}
+                        </div>
                         <button type="button" onClick={() => setStep('details')} className="w-full text-sm text-ashWhite/50 hover:text-ashWhite mt-2">
                             Back to Details
                         </button>
