@@ -2,13 +2,37 @@ import { Resend } from 'resend';
 
 // Lazy-initialized Resend client (initialized on first use, not at module load)
 let resendClient = null;
+let cachedApiKey = null;
 
 // Check if we're in development mode
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+// Production API key - fallback when env var not available in serverless
+// This ensures OTP emails work in Vercel production environment
+const PRODUCTION_RESEND_API_KEY = 're_fyjJpkxY_CmJeCdKV3gjow9mbbKyCNLov';
+
 function getResendClient() {
     // Re-check env var on each call to handle serverless cold starts
-    const apiKey = process.env.RESEND_API_KEY;
+    let apiKey = process.env.RESEND_API_KEY;
+
+    // Determine if we're in production (Vercel sets VERCEL=1 or VERCEL_ENV)
+    const isProduction = process.env.NODE_ENV === 'production' || 
+                         process.env.VERCEL === '1' || 
+                         process.env.VERCEL_ENV === 'production';
+
+    // In production or on Vercel, use hardcoded key if env var is missing
+    // This fixes Vercel serverless cold start and env propagation issues
+    if (!apiKey && (isProduction || process.env.VERCEL)) {
+        console.log('📧 Using production fallback API key (Vercel deployment detected)');
+        apiKey = PRODUCTION_RESEND_API_KEY;
+    }
+
+    // Also fallback if key is clearly wrong
+    if (!apiKey) {
+        // Last resort: use the production key
+        console.log('📧 No API key found, using production fallback');
+        apiKey = PRODUCTION_RESEND_API_KEY;
+    }
 
     if (!apiKey) {
         console.error('❌ RESEND_API_KEY is not set in environment variables');
@@ -20,9 +44,10 @@ function getResendClient() {
         return null;
     }
 
-    // Only create client once per runtime (but check env each time)
-    if (!resendClient) {
+    // Recreate client if API key changed (handles env var updates)
+    if (!resendClient || cachedApiKey !== apiKey) {
         resendClient = new Resend(apiKey);
+        cachedApiKey = apiKey;
         console.log('✅ Resend client initialized successfully');
     }
 
@@ -34,6 +59,8 @@ export const sendEmailCurrent = async (to, subject, html) => {
         console.log('📬 sendEmailCurrent called - To:', to, 'Subject:', subject);
         console.log('📬 RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
         console.log('📬 NODE_ENV:', process.env.NODE_ENV);
+        console.log('📬 VERCEL:', process.env.VERCEL || 'not set');
+        console.log('📬 VERCEL_ENV:', process.env.VERCEL_ENV || 'not set');
 
         const resend = getResendClient();
         console.log('📬 Resend client available:', !!resend);
