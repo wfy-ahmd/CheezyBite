@@ -49,14 +49,24 @@ export async function POST(request) {
         const otpHash = await bcrypt.hash(otp, salt);
 
         // Step 3: Send OTP email (CRITICAL - must succeed before user creation)
+        console.log('📧 [REGISTRATION] Environment check:');
+        console.log('📧   - RESEND_API_KEY present:', !!process.env.RESEND_API_KEY);
+        console.log('📧   - RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL || 'using default');
+        console.log('📧   - NODE_ENV:', process.env.NODE_ENV);
         console.log('📧 [REGISTRATION] Attempting to send OTP email to:', email);
+
         const emailResult = await sendOTP(email, otp);
+
         console.log('📧 [REGISTRATION] Email send result:', JSON.stringify(emailResult));
+        console.log('📧   - Success:', emailResult.success);
+        console.log('📧   - Error:', emailResult.error || 'none');
+        console.log('📧   - Dev Mode:', emailResult.devMode || false);
 
         // Step 4: Check if email sending succeeded
         if (!emailResult.success) {
             console.error('❌ [REGISTRATION] OTP email failed - aborting user creation');
-            console.error('❌ [REGISTRATION] Error:', emailResult.error);
+            console.error('❌ [REGISTRATION] Error details:', emailResult.error);
+            console.error('❌ [REGISTRATION] Check Vercel env vars: RESEND_API_KEY must be set');
             return errorResponse(
                 'Failed to send verification email. Please try again.',
                 { error: emailResult.error },
@@ -65,6 +75,9 @@ export async function POST(request) {
         }
 
         console.log('✅ [REGISTRATION] OTP email sent successfully');
+        if (emailResult.devMode) {
+            console.log('⚠️  [REGISTRATION] Running in DEV MODE - email not actually sent');
+        }
 
         // Step 5: Store OTP session (valid for 5 minutes)
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000);

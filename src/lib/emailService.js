@@ -9,23 +9,23 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 function getResendClient() {
     // Re-check env var on each call to handle serverless cold starts
     const apiKey = process.env.RESEND_API_KEY;
-    
+
     if (!apiKey) {
         console.error('❌ RESEND_API_KEY is not set in environment variables');
         return null;
     }
-    
+
     if (apiKey.startsWith('re_123')) {
         console.warn('⚠️ Using placeholder RESEND_API_KEY - emails will not be sent');
         return null;
     }
-    
+
     // Only create client once per runtime (but check env each time)
     if (!resendClient) {
         resendClient = new Resend(apiKey);
         console.log('✅ Resend client initialized successfully');
     }
-    
+
     return resendClient;
 }
 
@@ -34,10 +34,10 @@ export const sendEmailCurrent = async (to, subject, html) => {
         console.log('📬 sendEmailCurrent called - To:', to, 'Subject:', subject);
         console.log('📬 RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
         console.log('📬 NODE_ENV:', process.env.NODE_ENV);
-        
+
         const resend = getResendClient();
         console.log('📬 Resend client available:', !!resend);
-        
+
         if (!resend) {
             // In development, allow proceeding without email
             if (isDevelopment) {
@@ -46,9 +46,9 @@ export const sendEmailCurrent = async (to, subject, html) => {
                 return { success: true, id: 'dev_mode_' + Date.now(), devMode: true };
             }
             console.error("❌ Cannot send email: RESEND_API_KEY missing or invalid");
-            return { 
-                success: false, 
-                error: 'Email service not configured. Please contact support.' 
+            return {
+                success: false,
+                error: 'Email service not configured. Please contact support.'
             };
         }
 
@@ -67,35 +67,49 @@ export const sendEmailCurrent = async (to, subject, html) => {
         // Resend returns { data: {...}, error: null } on success
         // or { data: null, error: {...} } on failure
         if (data.error) {
-            console.error("📬 Resend Error:", JSON.stringify(data.error));
-            
+            console.error("📬 Resend API Error Details:");
+            console.error("   - Message:", data.error.message);
+            console.error("   - Status Code:", data.error.statusCode);
+            console.error("   - Name:", data.error.name);
+            console.error("   - Full Error:", JSON.stringify(data.error));
+
             // Common error: "You can only send testing emails to your own email address"
             // This happens with free tier + onboarding@resend.dev
-            if (data.error.message?.includes('only send testing emails') || 
+            if (data.error.message?.includes('only send testing emails') ||
                 data.error.message?.includes('not verified') ||
                 data.error.statusCode === 403) {
-                console.error("📬 Resend domain restriction - free tier can only send to verified email");
-                
+                console.error("📬 ⚠️ RESEND FREE TIER RESTRICTION DETECTED");
+                console.error("   - You're using onboarding@resend.dev (test domain)");
+                console.error("   - Free tier can only send to YOUR verified email");
+                console.error("   - Solution: Set RESEND_FROM_EMAIL to your verified email in Vercel env vars");
+
                 // In development, allow proceeding
                 if (isDevelopment) {
                     console.warn("⚠️ [DEV MODE] Bypassing Resend restriction for testing");
                     return { success: true, id: 'dev_bypass_' + Date.now(), devMode: true };
                 }
             }
-            
+
+            // Rate limit errors
+            if (data.error.statusCode === 429 || data.error.message?.includes('rate limit')) {
+                console.error("📬 ⚠️ RATE LIMIT EXCEEDED");
+                console.error("   - Resend free tier has limits");
+                console.error("   - Wait before trying again or upgrade plan");
+            }
+
             return { success: false, error: data.error.message || 'Failed to send email' };
         }
 
         return { success: true, data: data.data };
     } catch (error) {
         console.error("📬 Email Service Error:", error.message || error);
-        
+
         // In development, allow proceeding even on error
         if (isDevelopment) {
             console.warn("⚠️ [DEV MODE] Email failed but allowing to proceed for testing");
             return { success: true, id: 'dev_error_bypass_' + Date.now(), devMode: true };
         }
-        
+
         return { success: false, error: error.message || 'Email service error' };
     }
 };
@@ -112,7 +126,7 @@ export const sendOTP = async (email, otp) => {
         console.log('╚════════════════════════════════════════════════════════════╝');
         console.log('');
     }
-    
+
     const htmlKey = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #FF8c00;">CheezyBite Verification</h1>

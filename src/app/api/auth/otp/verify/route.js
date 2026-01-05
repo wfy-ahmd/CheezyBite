@@ -8,7 +8,7 @@ export async function POST(request) {
     try {
         await dbConnect();
         const { email, purpose, code } = await request.json();
-        
+
         console.log('✅ OTP Verify - Email:', email, 'Purpose:', purpose);
 
         if (!email || !purpose || !code) {
@@ -48,13 +48,17 @@ export async function POST(request) {
         // If purpose was 'email_verification' or 'signup', update user status
         if (purpose === 'signup' || purpose === 'email_verification' || purpose === 'profile_update') {
             const updatedUser = await User.findOneAndUpdate(
-                { email }, 
-                { emailVerified: true, verifiedAt: new Date() },
+                { email },
+                {
+                    emailVerified: true,
+                    verifiedAt: new Date(),
+                    status: 'Active'
+                },
                 { new: true }
             ).select('-password -__v').lean();
-            
-            console.log('✅ User verified:', email);
-            
+
+            console.log('✅ User verified and activated:', email);
+
             // Emit real-time event to update admin panel customer status
             if (updatedUser) {
                 try {
@@ -77,7 +81,7 @@ export async function POST(request) {
                                     totalOrders: 0,
                                     totalSpent: 0,
                                     lastOrderDate: null,
-                                    status: 'New', // Still 'New' until they place an order
+                                    status: 'Active', // Active after email verification
                                     createdAt: updatedUser.createdAt
                                 }
                             }

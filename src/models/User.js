@@ -67,6 +67,11 @@ const UserSchema = new mongoose.Schema({
             default: false
         }
     }],
+    status: {
+        type: String,
+        enum: ['New', 'Active', 'Inactive'],
+        default: 'New'
+    },
     role: {
         type: String,
         enum: ['Customer', 'Delivery', 'Manager', 'Super Admin'],
@@ -79,6 +84,10 @@ const UserSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
+    },
+    verifiedAt: {
+        type: Date,
+        default: undefined
     },
     resetPasswordToken: {
         type: String,
