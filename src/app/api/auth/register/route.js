@@ -44,7 +44,38 @@ export async function POST(request) {
             addresses: []
         });
 
-        // We do NOT return a token. We require verification.
+        // Emit real-time event for admin dashboard (New Customer)
+        // We use a non-blocking fetch to the local socket server
+        try {
+            fetch(`${process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000'}/internal/emit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-internal-secret': process.env.INTERNAL_SECRET || 'super-secret-internal-key'
+                },
+                body: JSON.stringify({
+                    event: 'customer-added', // Frontend listens for this
+                    room: 'customers',       // Admin customers page listens to this room
+                    data: {
+                        customer: {
+                            _id: user._id,
+                            name: user.name,
+                            email: user.email,
+                            phone: user.phone,
+                            totalOrders: 0,
+                            totalSpent: 0,
+                            lastOrderDate: null,
+                            status: 'New',
+                            emailVerified: false,
+                            createdAt: user.createdAt
+                        }
+                    }
+                })
+            }).catch(err => console.error('Socket emit error:', err.message));
+        } catch (e) {
+            // Ignore socket errors, don't block registration
+        }
+
         return successResponse(
             {
                 userId: user._id,

@@ -82,6 +82,15 @@ io.on('connection', (socket) => {
         console.log(`📊 Admin ${socket.id} subscribed to dashboard`);
     });
 
+    // Admin joins specific management room (customers, orders, etc.)
+    socket.on('admin-join', (data) => {
+        const { room } = data;
+        if (room) {
+            socket.join(room);
+            console.log(`👨‍💼 Admin ${socket.id} joined room: ${room}`);
+        }
+    });
+
     // Customer tracks specific order
     socket.on('order:track', (data) => {
         const { orderId } = data;

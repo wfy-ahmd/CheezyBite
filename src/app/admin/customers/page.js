@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { Users, Search, Mail, Phone, ShoppingBag, DollarSign, Calendar, Eye, Loader2, CheckCircle } from 'lucide-react';
+import { Users, Search, Mail, Phone, ShoppingBag, DollarSign, Calendar, Eye, Loader2, CheckCircle, Trash2 } from 'lucide-react';
 import customersService from '@/services/customersService';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
@@ -71,6 +71,12 @@ export default function AdminCustomersPage() {
                             : c
                     )
                 );
+            });
+
+            socketRef.current.on('customer-deleted', (data) => {
+                setCustomers(prev => prev.filter(c => c._id !== data.customerId));
+                setPagination(prev => ({ ...prev, total: Math.max(0, prev.total - 1) }));
+                toast.success('Customer deleted');
             });
         }
 
@@ -148,6 +154,21 @@ export default function AdminCustomersPage() {
     const handleCloseDetails = () => {
         setSelectedCustomer(null);
         setCustomerDetails(null);
+    };
+
+    const handleDelete = async (customerId) => {
+        if (!confirm('Are you sure you want to delete this customer? This action cannot be undone.')) return;
+
+        try {
+            const response = await customersService.deleteAdmin(customerId);
+            if (response.success) {
+                // UI update handled by socket
+            } else {
+                toast.error(response.message || 'Failed to delete customer');
+            }
+        } catch (error) {
+            toast.error('Failed to delete customer');
+        }
     };
 
     // Show loading or not authenticated state
@@ -299,13 +320,22 @@ export default function AdminCustomersPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button
-                                                onClick={() => handleViewDetails(customer)}
-                                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/20 text-primary hover:bg-primary/30 rounded-lg transition-colors text-sm font-medium"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                                View
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleViewDetails(customer)}
+                                                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/20 text-primary hover:bg-primary/30 rounded-lg transition-colors text-sm font-medium"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                    View
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(customer._id)}
+                                                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg transition-colors text-sm font-medium"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

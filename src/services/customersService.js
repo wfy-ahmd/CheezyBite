@@ -34,6 +34,32 @@ const customersService = {
             // Let the caller handle the error (e.g. 404)
             throw error;
         }
+    },
+
+    /**
+     * Update customer details (admin only)
+     */
+    async updateAdmin(customerId, data) {
+        try {
+            const response = await apiClient.put(`/admin/customers/${customerId}`, data);
+            return response;
+        } catch (error) {
+            console.error('customersService.updateAdmin error:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Delete customer (admin only)
+     */
+    async deleteAdmin(customerId) {
+        try {
+            const response = await apiClient.delete(`/admin/customers/${customerId}`);
+            return response;
+        } catch (error) {
+            console.error('customersService.deleteAdmin error:', error);
+            throw error;
+        }
     }
 };
 
