@@ -128,18 +128,22 @@ export default function AdminCustomersPage() {
     const loadCustomerDetails = async (customerId) => {
         try {
             setDetailsLoading(true);
+            console.log('👁️ Loading customer details for ID:', customerId);
             const response = await customersService.getByIdAdmin(customerId);
+            console.log('👁️ Customer details response:', response);
 
             if (response.success) {
                 setCustomerDetails(response.data);
+            } else {
+                toast.error(response.message || 'Failed to load customer details');
             }
         } catch (error) {
+            console.error('👁️ Load customer details error:', error);
             if (error.status === 404) {
                 toast.error('Customer not found');
                 setSelectedCustomer(null);
             } else {
-                console.error('Load customer details error:', error);
-                toast.error('Failed to load customer details');
+                toast.error(error.message || 'Failed to load customer details');
             }
         } finally {
             setDetailsLoading(false);
@@ -160,14 +164,27 @@ export default function AdminCustomersPage() {
         if (!confirm('Are you sure you want to delete this customer? This action cannot be undone.')) return;
 
         try {
+            console.log('🗑️ Deleting customer:', customerId);
             const response = await customersService.deleteAdmin(customerId);
+            console.log('🗑️ Delete response:', response);
+            
             if (response.success) {
-                // UI update handled by socket
+                // Update UI immediately (don't rely solely on socket)
+                setCustomers(prev => prev.filter(c => c._id !== customerId));
+                setPagination(prev => ({ ...prev, total: Math.max(0, prev.total - 1) }));
+                toast.success('Customer deleted successfully');
+                
+                // Close details modal if viewing deleted customer
+                if (selectedCustomer?._id === customerId) {
+                    setSelectedCustomer(null);
+                    setCustomerDetails(null);
+                }
             } else {
                 toast.error(response.message || 'Failed to delete customer');
             }
         } catch (error) {
-            toast.error('Failed to delete customer');
+            console.error('🗑️ Delete error:', error);
+            toast.error(error.message || 'Failed to delete customer');
         }
     };
 

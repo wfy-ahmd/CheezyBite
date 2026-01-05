@@ -23,7 +23,10 @@ export async function GET(request, { params }) {
 
         await dbConnect();
 
-        const { id } = params;
+        // In Next.js 15+, params must be awaited
+        const { id } = await params;
+        
+        console.log('🔍 GET /api/admin/customers/:id - ID received:', id);
 
         // Get customer details (exclude password)
         const customer = await User.findById(id).select('-password -__v').lean();
@@ -73,8 +76,12 @@ export async function PUT(request, { params }) {
         }
 
         await dbConnect();
-        const { id } = params;
+        
+        // In Next.js 15+, params must be awaited
+        const { id } = await params;
         const body = await request.json();
+        
+        console.log('🔄 PUT /api/admin/customers/:id - ID received:', id);
 
         // Prevent updating sensitive fields
         delete body.password;
@@ -141,9 +148,15 @@ export async function DELETE(request, { params }) {
         }
 
         await dbConnect();
-        const { id } = params;
+        
+        // In Next.js 15+, params must be awaited
+        const { id } = await params;
+        
+        console.log('🗑️ DELETE /api/admin/customers/:id - ID received:', id);
 
         const deletedCustomer = await User.findByIdAndDelete(id);
+        
+        console.log('🗑️ DELETE result:', deletedCustomer ? 'Customer deleted' : 'Customer not found');
 
         if (!deletedCustomer) {
             return notFoundResponse('Customer');
