@@ -1,55 +1,30 @@
 import React from 'react';
 import MenuClient from './MenuClient';
-import { getPizzas } from '../../utils/pizzaStore';
+import dbConnect from '@/lib/dbConnect';
+import Pizza from '@/models/Pizza';
+import Topping from '@/models/Topping';
 
 export const metadata = {
     title: 'Menu | CheezyBite',
     description: 'Explore our delicious pizza menu.',
 };
 
-// import { getPizzas } from '../../utils/pizzaStore';
-import { headers } from 'next/headers';
-
 async function getData() {
     try {
-        // Use absolute internal URL for Vercel production, relative path for local dev
-        // In production, VERCEL_URL is already the full domain
-        const baseUrl = process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}/api`
-            : '/api'; // Use relative path for local development
-
-        const [pizzasRes, toppingsRes] = await Promise.all([
-            fetch(`${baseUrl}/pizzas`, {
-                cache: 'no-store',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            }),
-            fetch(`${baseUrl}/toppings`, {
-                cache: 'no-store',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
+        await dbConnect();
+        
+        // Fetch directly from database - no HTTP calls needed
+        const [pizzas, toppings] = await Promise.all([
+            Pizza.find({ enabled: true }).sort({ createdAt: -1 }).lean(),
+            Topping.find({ enabled: true }).lean()
         ]);
 
-        if (!pizzasRes.ok || !toppingsRes.ok) throw new Error('Failed to fetch menu data');
-
-        const pizzasData = await pizzasRes.json();
-        const toppingsData = await toppingsRes.json();
-
-        const pizzas = pizzasData.success ? pizzasData.data : [];
-        const toppings = toppingsData.success ? toppingsData.data : [];
-
-        // Inject all active toppings into every pizza (Legacy Behavior: "Build your own" style)
-        // Or if we want specific toppings per pizza, we would filter by pizza.toppingIds
-        // Based on pizzaStore.js: "return pizzas.map(pizza => ({ ...pizza, toppings: activeToppings }));"
-        // So we attach ALL enabled toppings to every pizza for customization.
-
-        const activeToppings = toppings.filter(t => t.enabled);
+        // Convert MongoDB documents to plain objects with string IDs
+        const activeToppings = toppings.map(t => ({ ...t, _id: t._id.toString() }));
 
         const pizzasWithToppings = pizzas.map(pizza => ({
             ...pizza,
+            _id: pizza._id.toString(),
             toppings: activeToppings
         }));
 

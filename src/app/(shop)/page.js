@@ -1,44 +1,28 @@
-// Force Re-compile 2
+// Force Re-compile 3
 import Banner from '../components/Banner';
-// import { getPizzas } from '../utils/pizzaStore';
 import { BestSellers, Highlights, HowItWorks, OffersBanner, SocialProof } from '../components/LandingSections';
+import dbConnect from '@/lib/dbConnect';
+import Pizza from '@/models/Pizza';
+import Topping from '@/models/Topping';
 
 async function getData() {
   try {
-    // Use absolute internal URL for Vercel production, relative path for local dev
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}/api`
-      : '/api'; // Use relative path for local development
-
-    const [pizzasRes, toppingsRes] = await Promise.all([
-      fetch(`${baseUrl}/pizzas`, {
-        cache: 'no-store',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }),
-      fetch(`${baseUrl}/toppings`, {
-        cache: 'no-store',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      })
+    await dbConnect();
+    
+    // Fetch directly from database - no HTTP calls needed
+    const [pizzas, toppings] = await Promise.all([
+      Pizza.find({ enabled: true }).sort({ createdAt: -1 }).lean(),
+      Topping.find({ enabled: true }).lean()
     ]);
 
-    if (!pizzasRes.ok || !toppingsRes.ok) throw new Error('Failed to fetch data');
-
-    const pizzasData = await pizzasRes.json();
-    const toppingsData = await toppingsRes.json();
-
-    const pizzas = pizzasData.success ? pizzasData.data : [];
-    const toppings = toppingsData.success ? toppingsData.data : [];
-
-    const activeToppings = toppings.filter(t => t.enabled);
-
-    return pizzas.map(pizza => ({
+    // Convert MongoDB documents to plain objects with string IDs
+    const processedPizzas = pizzas.map(pizza => ({
       ...pizza,
-      toppings: activeToppings
+      _id: pizza._id.toString(),
+      toppings: toppings.map(t => ({ ...t, _id: t._id.toString() }))
     }));
+
+    return processedPizzas;
   } catch (error) {
     console.error('Error fetching home data:', error);
     return [];

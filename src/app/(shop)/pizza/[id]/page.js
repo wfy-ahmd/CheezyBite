@@ -1,35 +1,34 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-// import { getPizzas } from '../../../utils/pizzaStore';
 import PizzaClient from './PizzaClient';
+import dbConnect from '@/lib/dbConnect';
+import Pizza from '@/models/Pizza';
+import Topping from '@/models/Topping';
+import mongoose from 'mongoose';
 
 async function getData(id) {
     try {
-        // For server-side rendering, use VERCEL_URL in production or localhost in dev
-        const baseUrl = process.env.VERCEL_URL 
-            ? `https://${process.env.VERCEL_URL}/api`
-            : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api');
+        await dbConnect();
+        
+        // Try to find by MongoDB ObjectId first, then by numeric id
+        let pizza;
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            pizza = await Pizza.findById(id).lean();
+        }
+        if (!pizza) {
+            pizza = await Pizza.findOne({ id: parseInt(id) }).lean();
+        }
+        
+        if (!pizza) return null;
 
-        const [pizzaRes, toppingsRes] = await Promise.all([
-            fetch(`${baseUrl}/pizzas/${id}`, { cache: 'no-store' }),
-            fetch(`${baseUrl}/toppings`, { cache: 'no-store' })
-        ]);
+        const toppings = await Topping.find({ enabled: true }).lean();
 
-        if (pizzaRes.status === 404) return null;
-        if (!pizzaRes.ok || !toppingsRes.ok) throw new Error('Failed to fetch data');
+        // Convert to plain objects with string IDs
+        const activeToppings = toppings.map(t => ({ ...t, _id: t._id.toString() }));
 
-        const pizzaData = await pizzaRes.json();
-        const toppingsData = await toppingsRes.json();
-
-        if (!pizzaData.success) return null;
-
-        const pizza = pizzaData.data;
-        const toppings = toppingsData.success ? toppingsData.data : [];
-        const activeToppings = toppings.filter(t => t.enabled);
-
-        // Inject toppings
         return {
             ...pizza,
+            _id: pizza._id.toString(),
             toppings: activeToppings
         };
 
