@@ -6,6 +6,7 @@ import { X, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { authService } from '../../services/authService';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 const modalStyles = {
     overlay: {
