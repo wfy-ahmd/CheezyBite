@@ -9,6 +9,8 @@ export async function POST(request) {
         await dbConnect();
 
         const { email, purpose } = await request.json();
+        
+        console.log('📧 OTP Request - Email:', email, 'Purpose:', purpose);
 
         if (!email || !purpose) {
             return errorResponse('Email and purpose are required', null, 400);
@@ -33,6 +35,7 @@ export async function POST(request) {
 
         // Generate 6 digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log('📧 OTP Generated for:', email);
 
         // Hash it
         const salt = await bcrypt.genSalt(10);
@@ -48,17 +51,21 @@ export async function POST(request) {
             otpHash,
             expiresAt
         });
+        console.log('📧 OTP Session created for:', email);
 
         // Send Email
         const emailResult = await sendOTP(email, otp);
+        console.log('📧 Email send result:', emailResult);
 
         if (!emailResult.success) {
+            console.error('📧 Failed to send OTP email:', emailResult.error);
             return errorResponse('Failed to send email. Please try again.', null, 500);
         }
 
         return successResponse(null, `OTP sent to ${email}`);
 
     } catch (error) {
+        console.error('📧 OTP Request Error:', error);
         return serverErrorResponse(error);
     }
 }

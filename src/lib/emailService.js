@@ -1,33 +1,43 @@
 import { Resend } from 'resend';
 
+// Initialize Resend client
 const resend = (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.startsWith('re_123'))
     ? new Resend(process.env.RESEND_API_KEY)
     : null;
 
 export const sendEmailCurrent = async (to, subject, html) => {
     try {
+        console.log('📬 sendEmailCurrent called - To:', to, 'Subject:', subject);
+        console.log('📬 RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY);
+        console.log('📬 Resend client initialized:', !!resend);
+        
         if (!resend) {
             console.warn("⚠️ Placeholder or Missing RESEND_API_KEY. Email simulation only.");
             console.log(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);
             return { success: true, id: 'mock_id_' + Date.now() };
         }
 
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'CheezyBite <onboarding@resend.dev>';
+        console.log('📬 Sending from:', fromEmail);
+
         const data = await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'CheezyBite <onboarding@resend.dev>',
+            from: fromEmail,
             to: to,
             subject: subject,
             html: html,
         });
 
+        console.log('📬 Resend API response:', JSON.stringify(data));
+
         if (data.error) {
-            console.error("Resend Error:", data.error);
+            console.error("📬 Resend Error:", data.error);
             return { success: false, error: data.error };
         }
 
         return { success: true, data };
     } catch (error) {
-        console.error("Email Service Error:", error);
-        return { success: false, error };
+        console.error("📬 Email Service Error:", error.message || error);
+        return { success: false, error: error.message || error };
     }
 };
 
