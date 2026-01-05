@@ -89,22 +89,16 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
             }
         } else {
             // SIGNUP FLOW
-            // 1. Create Account
             try {
                 const result = await register(formData.name, formData.email, formData.password);
 
                 if (result.success) {
                     if (result.requireVerification) {
-                        try {
-                            await authService.requestOtp(formData.email, 'signup');
-                            setResendTimer(60);
-                            setStep('otp');
-                        } catch (err) {
-                            console.error("Failed to send OTP", err);
-                            toast.error(err.message || 'Failed to send verification code. You can try resending.');
-                            // Still show OTP step so user can resend
-                            setStep('otp');
-                        }
+                        // OTP email is already sent by registration route (atomic)
+                        // Just proceed to OTP verification step
+                        setResendTimer(60);
+                        setStep('otp');
+                        toast.success('Verification code sent to your email!');
                     } else {
                         if (onSuccess) onSuccess();
                         onClose();

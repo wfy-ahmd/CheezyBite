@@ -9,6 +9,8 @@ import OtpSession from '@/models/OtpSession';
 import { hashPassword, generateToken } from '@/lib/auth';
 import { validateUserRegistration } from '@/lib/validators';
 import { successResponse, errorResponse, validationErrorResponse, serverErrorResponse } from '@/lib/apiResponse';
+import { sendOTP } from '@/lib/emailService';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request) {
     try {
@@ -31,10 +33,53 @@ export async function POST(request) {
             return errorResponse('User with this email already exists', null, 409);
         }
 
-        // Hash password
+        console.log('🔐 [REGISTRATION] Starting atomic registration for:', email);
+
+        // ====================================================================
+        // ATOMIC REGISTRATION: Generate and send OTP BEFORE creating user
+        // This prevents dead-lock states where user exists but email failed
+        // ====================================================================
+
+        // Step 1: Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log('🔐 [REGISTRATION] OTP generated for:', email);
+
+        // Step 2: Hash OTP for storage
+        const salt = await bcrypt.genSalt(10);
+        const otpHash = await bcrypt.hash(otp, salt);
+
+        // Step 3: Send OTP email (CRITICAL - must succeed before user creation)
+        console.log('📧 [REGISTRATION] Attempting to send OTP email to:', email);
+        const emailResult = await sendOTP(email, otp);
+        console.log('📧 [REGISTRATION] Email send result:', JSON.stringify(emailResult));
+
+        // Step 4: Check if email sending succeeded
+        if (!emailResult.success) {
+            console.error('❌ [REGISTRATION] OTP email failed - aborting user creation');
+            console.error('❌ [REGISTRATION] Error:', emailResult.error);
+            return errorResponse(
+                'Failed to send verification email. Please try again.',
+                { error: emailResult.error },
+                500
+            );
+        }
+
+        console.log('✅ [REGISTRATION] OTP email sent successfully');
+
+        // Step 5: Store OTP session (valid for 5 minutes)
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+        await OtpSession.create({
+            email: email.toLowerCase(),
+            purpose: 'signup',
+            otpHash,
+            expiresAt
+        });
+        console.log('✅ [REGISTRATION] OTP session created');
+
+        // Step 6: Hash password
         const hashedPassword = await hashPassword(password);
 
-        // Create user (Unverified initially)
+        // Step 7: ONLY NOW create user (email already succeeded)
         const user = await User.create({
             email: email.toLowerCase(),
             password: hashedPassword,
@@ -44,8 +89,10 @@ export async function POST(request) {
             addresses: []
         });
 
-        // Emit real-time event for admin dashboard (New Customer)
-        // We use a non-blocking fetch to the local socket server
+        console.log('✅ [REGISTRATION] User created successfully:', user._id);
+
+        // Step 8: Emit real-time event for admin dashboard (New Customer)
+        // Non-blocking - don't fail registration if socket fails
         try {
             fetch(`${process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000'}/internal/emit`, {
                 method: 'POST',
@@ -54,8 +101,8 @@ export async function POST(request) {
                     'x-internal-secret': process.env.INTERNAL_SECRET || 'super-secret-internal-key'
                 },
                 body: JSON.stringify({
-                    event: 'customer-added', // Frontend listens for this
-                    room: 'customers',       // Admin customers page listens to this room
+                    event: 'customer-added',
+                    room: 'customers',
                     data: {
                         customer: {
                             _id: user._id,
@@ -76,13 +123,15 @@ export async function POST(request) {
             // Ignore socket errors, don't block registration
         }
 
+        console.log('✅ [REGISTRATION] Atomic registration complete - user created and OTP sent');
+
         return successResponse(
             {
                 userId: user._id,
                 email: user.email,
                 requireVerification: true
             },
-            'Account created. Please verify your email.',
+            'Account created. Please check your email for verification code.',
             201
         );
 
