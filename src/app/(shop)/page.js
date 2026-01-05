@@ -2,20 +2,27 @@
 import Banner from '../components/Banner';
 // import { getPizzas } from '../utils/pizzaStore';
 import { BestSellers, Highlights, HowItWorks, OffersBanner, SocialProof } from '../components/LandingSections';
-import { headers } from 'next/headers';
 
 async function getData() {
   try {
-    const headersList = await headers();
-    
-    // For server-side rendering, use VERCEL_URL in production or localhost in dev
-    const baseUrl = process.env.VERCEL_URL 
+    // Use absolute internal URL for Vercel production, relative path for local dev
+    const baseUrl = process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}/api`
-      : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api');
+      : '/api'; // Use relative path for local development
 
     const [pizzasRes, toppingsRes] = await Promise.all([
-      fetch(`${baseUrl}/pizzas`, { cache: 'no-store' }),
-      fetch(`${baseUrl}/toppings`, { cache: 'no-store' })
+      fetch(`${baseUrl}/pizzas`, {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }),
+      fetch(`${baseUrl}/toppings`, {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
     ]);
 
     if (!pizzasRes.ok || !toppingsRes.ok) throw new Error('Failed to fetch data');
