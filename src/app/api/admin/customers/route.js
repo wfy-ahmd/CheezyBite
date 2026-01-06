@@ -13,13 +13,13 @@ export async function GET(request) {
     try {
         // Authenticate admin
         const authData = await authenticate(request);
-        
+
         // Log authentication details for debugging
         console.log('🔍 Customers API Auth Check:');
         console.log('   authData:', authData ? { ...authData, adminId: authData.adminId?.toString() } : null);
         console.log('   authData.type:', authData?.type);
         console.log('   Is admin type?', authData?.type === 'admin');
-        
+
         if (!authData || authData.type !== 'admin') {
             console.log('❌ Customers API Auth Failed - Not admin');
             return unauthorizedResponse();
@@ -91,13 +91,10 @@ export async function GET(request) {
             },
             {
                 $addFields: {
-                    status: {
-                        $cond: {
-                            if: { $eq: ['$totalOrders', 0] },
-                            then: 'New',
-                            else: 'Active'
-                        }
-                    }
+                    // Force all customers to Active status
+                    // After OTP removal, all users are verified and active by default
+                    // Old users with status:"New" or emailVerified:false are auto-normalized
+                    status: 'Active'
                 }
             }
         ]);

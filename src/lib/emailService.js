@@ -157,3 +157,88 @@ export const sendPasswordResetEmail = async (email, resetUrl) => {
     `;
     return sendEmailCurrent(email, 'Reset Your CheezyBite Password', htmlKey);
 };
+
+export const sendOrderConfirmationEmail = async (recipientEmail, orderDetails) => {
+    const { orderId, items, total, address, estimatedDeliveryTime } = orderDetails;
+
+    // Build items list HTML
+    const itemsHtml = items.map(item => `
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                ${item.name} (${item.size}, ${item.crust})
+                ${item.additionalTopping && item.additionalTopping.length > 0
+            ? `<br><small style="color: #666;">+ ${item.additionalTopping.map(t => t.name).join(', ')}</small>`
+            : ''}
+            </td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">x${item.amount}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${item.price.toFixed(2)}</td>
+        </tr>
+    `).join('');
+
+    const deliveryTime = estimatedDeliveryTime
+        ? new Date(estimatedDeliveryTime).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+        : '30-45 minutes';
+
+    const htmlContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px;">
+        <div style="background: white; padding: 30px; border-radius: 10px;">
+            <h1 style="color: #FF8c00; margin: 0 0 10px;">Order Confirmed! 🍕</h1>
+            <p style="color: #666; margin: 0 0 20px;">Thank you for your order from CheezyBite!</p>
+            
+            <div style="background: #fff7ed; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <p style="margin: 0; font-size: 14px; color: #666;">Order Number</p>
+                <p style="margin: 5px 0 0; font-size: 20px; font-weight: bold; color: #FF8c00;">${orderId}</p>
+            </div>
+
+            <h2 style="color: #333; font-size: 18px; margin: 20px 0 10px;">Order Details</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <thead>
+                    <tr style="background: #f5f5f5;">
+                        <th style="padding: 10px; text-align: left; font-size: 14px; font-weight: 600;">Item</th>
+                        <th style="padding: 10px; text-align: center; font-size: 14px; font-weight: 600;">Qty</th>
+                        <th style="padding: 10px; text-align: right; font-size: 14px; font-weight: 600;">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsHtml}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" style="padding: 15px 10px 10px; text-align: right; font-weight: bold; font-size: 16px;">Total:</td>
+                        <td style="padding: 15px 10px 10px; text-align: right; font-weight: bold; font-size: 16px; color: #FF8c00;">$${total.toFixed(2)}</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <h2 style="color: #333; font-size: 18px; margin: 20px 0 10px;">Delivery Information</h2>
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <p style="margin: 0 0 5px; font-weight: 600;">${address?.label || 'Delivery Address'}</p>
+                <p style="margin: 0; color: #666; font-size: 14px;">${address?.street || ''}</p>
+                <p style="margin: 0; color: #666; font-size: 14px;">${address?.area ? address.area + ', ' : ''}${address?.city || ''}</p>
+                <p style="margin: 10px 0 0; color: #666; font-size: 14px;">📞 ${address?.phone || ''}</p>
+            </div>
+
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
+                <p style="margin: 0; font-size: 14px; color: #2e7d32;">⏱️ Estimated Delivery</p>
+                <p style="margin: 5px 0 0; font-size: 18px; font-weight: bold; color: #1b5e20;">${deliveryTime}</p>
+            </div>
+
+            <p style="color: #999; font-size: 12px; margin: 20px 0 0; text-align: center;">
+                We're preparing your delicious pizzas! You'll receive updates as your order progresses.
+            </p>
+        </div>
+        
+        <p style="color: #999; font-size: 11px; text-align: center; margin-top: 20px;">
+            © CheezyBite - Your favorite pizza delivered hot and fresh
+        </p>
+    </div>
+    `;
+
+    return sendEmailCurrent(recipientEmail, `Order Confirmed - ${orderId}`, htmlContent);
+};
+

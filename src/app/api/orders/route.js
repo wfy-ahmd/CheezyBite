@@ -67,17 +67,17 @@ export async function POST(request) {
         if (body.appliedOffer && body.appliedOffer.code) {
             const { default: Offer } = await import('@/models/Offer');
             const offer = await Offer.findOne({ code: body.appliedOffer.code.toUpperCase() });
-            
+
             if (offer) {
                 // Increment total usage
                 offer.usedCount = (offer.usedCount || 0) + 1;
-                
+
                 // Track per-user usage
                 if (authData?.userId) {
                     const existingUserUsage = offer.userUsage.find(
                         u => u.userId.toString() === authData.userId
                     );
-                    
+
                     if (existingUserUsage) {
                         existingUserUsage.count += 1;
                         existingUserUsage.lastUsedAt = new Date();
@@ -89,7 +89,7 @@ export async function POST(request) {
                         });
                     }
                 }
-                
+
                 await offer.save();
             }
         }
@@ -101,10 +101,66 @@ export async function POST(request) {
             orderId: order._id.toString(),
             total: order.total,
             items: order.items,
-            customerName: order.customerName,
+            customerName: order.address?.label || 'Customer',
             timestamp: order.createdAt,
             order: order.toObject ? order.toObject() : order // Full order object for admin UI updates
         }, 'admin-dashboard');
+
+        // Send order confirmation email
+        try {
+            let recipientEmail = null;
+
+            // Strategy 1: Get email from order's customerEmail field
+            if (order.customerEmail) {
+                recipientEmail = order.customerEmail;
+                console.log('📧 [ORDER CONFIRMATION] Using order.customerEmail:', recipientEmail);
+            }
+
+            // Strategy 2: Get email from authenticated user
+            if (!recipientEmail && authData?.userId) {
+                const User = (await import('@/models/User')).default;
+                const user = await User.findById(authData.userId).select('email').lean();
+                if (user?.email) {
+                    recipientEmail = user.email;
+                    console.log('📧 [ORDER CONFIRMATION] Using user.email from userId:', recipientEmail);
+                }
+            }
+
+            // Strategy 3: Get email from order.address if available
+            if (!recipientEmail && order.address?.email) {
+                recipientEmail = order.address.email;
+                console.log('📧 [ORDER CONFIRMATION] Using order.address.email:', recipientEmail);
+            }
+
+            if (recipientEmail) {
+                const { sendOrderConfirmationEmail } = await import('@/lib/emailService');
+
+                console.log('📧 [ORDER CONFIRMATION] Sending email to:', recipientEmail.replace(/(.{2}).*(@.*)/, '$1***$2'));
+                console.log('📧 [ORDER CONFIRMATION] Order ID:', order.id);
+                console.log('📧 [ORDER CONFIRMATION] Total:', order.total);
+
+                const emailResult = await sendOrderConfirmationEmail(recipientEmail, {
+                    orderId: order.id,
+                    items: order.items,
+                    total: order.total,
+                    address: order.address,
+                    estimatedDeliveryTime: order.estimatedDeliveryTime
+                });
+
+                if (emailResult.success) {
+                    console.log('✅ [ORDER CONFIRMATION] Email sent successfully');
+                } else {
+                    console.error('❌ [ORDER CONFIRMATION] Email failed:', emailResult.error);
+                }
+            } else {
+                console.warn('⚠️ [ORDER CONFIRMATION] No email address found for order:', order.id);
+                console.warn('   - authData.userId:', authData?.userId || 'none');
+                console.warn('   - order.customerEmail:', order.customerEmail || 'none');
+            }
+        } catch (emailError) {
+            // Don't fail order creation if email fails
+            console.error('❌ [ORDER CONFIRMATION] Email error:', emailError.message);
+        }
 
         return successResponse(order, 'Order created successfully', 201);
 

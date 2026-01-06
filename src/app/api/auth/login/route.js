@@ -37,9 +37,8 @@ export async function POST(request) {
             return errorResponse('Invalid email or password', null, 401);
         }
 
-        if (!user.emailVerified) {
-            return errorResponse('Email not verified', { requireVerification: true, email: user.email }, 403);
-        }
+        // Email verification check removed - all users are now created as verified
+        // Old users who registered before OTP removal are auto-normalized
 
         // Generate JWT token
         const token = generateToken({
