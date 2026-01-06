@@ -9,7 +9,7 @@ import OtpSession from '@/models/OtpSession';
 import { hashPassword, generateToken } from '@/lib/auth';
 import { validateUserRegistration } from '@/lib/validators';
 import { successResponse, errorResponse, validationErrorResponse, serverErrorResponse } from '@/lib/apiResponse';
-import { sendOTP } from '@/lib/emailService';
+import { sendRegistrationOTP } from '@/lib/registrationEmailService';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request) {
@@ -55,7 +55,7 @@ export async function POST(request) {
         console.log('📧   - NODE_ENV:', process.env.NODE_ENV);
         console.log('📧 [REGISTRATION] Attempting to send OTP email to:', email);
 
-        const emailResult = await sendOTP(email, otp);
+        const emailResult = await sendRegistrationOTP(email, otp);
 
         console.log('📧 [REGISTRATION] Email send result:', JSON.stringify(emailResult));
         console.log('📧   - Success:', emailResult.success);
