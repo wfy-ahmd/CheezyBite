@@ -7,35 +7,13 @@ let cachedApiKey = null;
 // Check if we're in development mode
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-// Production API key - fallback when env var not available in serverless
-// This ensures OTP emails work in Vercel production environment
-const PRODUCTION_RESEND_API_KEY = 're_fyjJpkxY_CmJeCdKV3gjow9mbbKyCNLov';
-
 function getResendClient() {
-    // Re-check env var on each call to handle serverless cold starts
-    let apiKey = process.env.RESEND_API_KEY;
-
-    // Determine if we're in production (Vercel sets VERCEL=1 or VERCEL_ENV)
-    const isProduction = process.env.NODE_ENV === 'production' || 
-                         process.env.VERCEL === '1' || 
-                         process.env.VERCEL_ENV === 'production';
-
-    // In production or on Vercel, use hardcoded key if env var is missing
-    // This fixes Vercel serverless cold start and env propagation issues
-    if (!apiKey && (isProduction || process.env.VERCEL)) {
-        console.log('📧 Using production fallback API key (Vercel deployment detected)');
-        apiKey = PRODUCTION_RESEND_API_KEY;
-    }
-
-    // Also fallback if key is clearly wrong
-    if (!apiKey) {
-        // Last resort: use the production key
-        console.log('📧 No API key found, using production fallback');
-        apiKey = PRODUCTION_RESEND_API_KEY;
-    }
+    // Get API key from environment
+    const apiKey = process.env.RESEND_API_KEY;
 
     if (!apiKey) {
         console.error('❌ RESEND_API_KEY is not set in environment variables');
+        console.error('❌ Please add RESEND_API_KEY to your .env.local or Vercel environment');
         return null;
     }
 

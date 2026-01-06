@@ -19,37 +19,17 @@ let cachedRegisterApiKey = null;
 // Check if we're in development mode
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-// Production API key for registration OTP
-// This is SEPARATE from the main email service API key
-const PRODUCTION_REGISTRATION_API_KEY = 're_MC6jbn4i_9naLEqCtTfraMTYscXnDqV3S';
-
 /**
  * Get Resend client ONLY for registration OTP
  * This is isolated from main email service
  */
 function getRegistrationResendClient() {
-    // Try to get registration-specific API key
-    let apiKey = process.env.RESEND_REGISTER_API_KEY;
-
-    // Determine if we're in production (Vercel)
-    const isProduction = process.env.NODE_ENV === 'production' ||
-        process.env.VERCEL === '1' ||
-        process.env.VERCEL_ENV === 'production';
-
-    // In production or on Vercel, use hardcoded key if env var is missing
-    if (!apiKey && (isProduction || process.env.VERCEL)) {
-        console.log('📧 [REGISTRATION] Using production registration API key (Vercel deployment)');
-        apiKey = PRODUCTION_REGISTRATION_API_KEY;
-    }
-
-    // Fallback for local development
-    if (!apiKey) {
-        console.log('📧 [REGISTRATION] Using production fallback key');
-        apiKey = PRODUCTION_REGISTRATION_API_KEY;
-    }
+    // Get registration-specific API key from environment
+    const apiKey = process.env.RESEND_REGISTER_API_KEY;
 
     if (!apiKey) {
-        console.error('❌ [REGISTRATION] RESEND_REGISTER_API_KEY is not set');
+        console.error('❌ [REGISTRATION] RESEND_REGISTER_API_KEY is not set in environment variables');
+        console.error('❌ [REGISTRATION] Please add RESEND_REGISTER_API_KEY to your .env.local or Vercel environment');
         return null;
     }
 
