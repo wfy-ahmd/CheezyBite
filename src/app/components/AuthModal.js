@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import { X, Mail, Lock, User, ArrowRight, RefreshCw } from 'lucide-react';
+import { X, Mail, Lock, User, Phone, ArrowRight } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { authService } from '../../services/authService';
 import Link from 'next/link';
@@ -33,43 +33,16 @@ if (typeof window !== 'undefined') {
 const AuthModal = ({ isOpen, onClose, onSuccess }) => {
     const [isLogin, setIsLogin] = useState(true);
     const { login, register, loginWithGoogle } = useUser();
-    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '' });
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const [step, setStep] = useState('details'); // 'details' | 'otp'
-    const [otp, setOtp] = useState('');
-    const [isVerifying, setIsVerifying] = useState(false);
-    const [resendTimer, setResendTimer] = useState(0);
-
-    // Resend timer countdown
-    useEffect(() => {
-        let interval;
-        if (resendTimer > 0) {
-            interval = setInterval(() => {
-                setResendTimer((prev) => prev - 1);
-            }, 1000);
-        }
-        return () => clearInterval(interval);
-    }, [resendTimer]);
-
-    const handleResendOtp = async () => {
-        if (resendTimer > 0) return;
-        try {
-            const purpose = isLogin ? 'email_verification' : 'signup';
-            await authService.requestOtp(formData.email, purpose);
-            setResendTimer(60);
-            toast.success('Verification code sent!');
-        } catch (err) {
-            toast.error(err.message || 'Failed to resend code');
-        }
-    };
-
     const handleAuthAction = async (e) => {
         e.preventDefault();
-        setIsVerifying(true);
+        setIsLoading(true);
 
         if (isLogin) {
             // LOGIN FLOW
@@ -78,31 +51,18 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                 if (onSuccess) onSuccess();
                 onClose();
             } else if (result.requireVerification) {
-                try {
-                    await authService.requestOtp(formData.email, 'email_verification');
-                    setResendTimer(60);
-                    setStep('otp');
-                } catch (err) {
-                    console.error("Failed to send OTP", err);
-                    toast.error(err.message || 'Failed to send verification code');
-                }
+                // Still has unverified account (legacy) - redirect to login
+                toast.error('Please verify your email first');
             }
         } else {
-            // SIGNUP FLOW
+            // SIGNUP FLOW - Direct registration
             try {
-                const result = await register(formData.name, formData.email, formData.password);
+                const result = await register(formData.name, formData.email, formData.password, formData.phone);
 
                 if (result.success) {
-                    if (result.requireVerification) {
-                        // OTP email is already sent by registration route (atomic)
-                        // Just proceed to OTP verification step
-                        setResendTimer(60);
-                        setStep('otp');
-                        toast.success('Verification code sent to your email!');
-                    } else {
-                        if (onSuccess) onSuccess();
-                        onClose();
-                    }
+                    // User is created and active - switch to login
+                    setIsLogin(true);
+                    toast.success('Please log in with your credentials');
                 }
             } catch (error) {
                 // Handle "User already exists" (409)
@@ -115,38 +75,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                 }
             }
         }
-        setIsVerifying(false);
-    };
-
-    const handleVerifyOtp = async (e) => {
-        e.preventDefault();
-        setIsVerifying(true);
-        try {
-            if (!otp || otp.length < 6) {
-                toast.error("Please enter a valid 6-digit code");
-                setIsVerifying(false);
-                return;
-            }
-
-            const purpose = isLogin ? 'email_verification' : 'signup';
-            const verifyResponse = await authService.verifyOtp(formData.email, purpose, otp);
-
-            if (verifyResponse?.success) {
-                // Auto Login
-                const loginResult = await login(formData.email, formData.password);
-                if (loginResult.success) {
-                    if (onSuccess) onSuccess();
-                    onClose();
-                } else {
-                    setIsLogin(true);
-                    setStep('details');
-                }
-            }
-        } catch (error) {
-            console.error("Verification failed", error);
-            toast.error(error.message || "Verification failed");
-        }
-        setIsVerifying(false);
+        setIsLoading(false);
     };
 
 
@@ -172,132 +101,111 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
 
                 <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-ashWhite mb-1">
-                        {isLogin ? 'Login Required' : (step === 'otp' ? 'Verify Email' : 'Join CheezyBite')}
+                        {isLogin ? 'Login Required' : 'Join CheezyBite'}
                     </h2>
                     <p className="text-ashWhite/60 text-sm">
-                        {isLogin ? 'Please log in to place your order' : (step === 'otp' ? `Enter code sent to ${formData.email}` : 'Create an account to continue')}
+                        {isLogin ? 'Please log in to place your order' : 'Create an account to continue'}
                     </p>
                 </div>
 
-                {!isLogin && step === 'otp' || (isLogin && step === 'otp') ? (
-                    <form onSubmit={handleVerifyOtp} className="space-y-4">
+                {/* Social Auth and Divider */}
+                <div className="space-y-4 mb-6">
+                    <button
+                        onClick={async () => {
+                            const success = await loginWithGoogle();
+                            if (success) {
+                                if (onSuccess) onSuccess();
+                                onClose();
+                            }
+                        }}
+                        className="w-full bg-white text-black font-bold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-100 transition-colors"
+                    >
+                        <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+                        Continue with Google
+                    </button>
+
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-cardBorder"></span>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-softBlack px-2 text-ashWhite/40">Or continue with email</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form onSubmit={handleAuthAction} className="space-y-4">
+                    {!isLogin && (
                         <div className="relative">
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-ashWhite/50 w-5 h-5" />
                             <input
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value)}
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
                                 type="text"
-                                placeholder="Enter 6-digit Code"
-                                maxLength={6}
-                                className="w-full bg-charcoalBlack border border-cardBorder rounded-xl px-4 py-3 text-ashWhite text-center text-2xl tracking-widest focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                                autoFocus
+                                placeholder="Full Name"
+                                required
+                                className="w-full bg-charcoalBlack border border-cardBorder rounded-xl pl-12 pr-4 py-3 text-ashWhite focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                             />
                         </div>
-                        <button disabled={isVerifying} type="submit" className="w-full btn btn-lg bg-primary hover:bg-primaryHover text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2 mt-6 disabled:opacity-50">
-                            {isVerifying ? 'Verifying...' : 'Verify Code'}
-                        </button>
-                        <div className="text-center mt-4">
-                            {resendTimer > 0 ? (
-                                <p className="text-xs text-ashWhite/40 font-mono">
-                                    Resend code in 00:{resendTimer < 10 ? `0${resendTimer}` : resendTimer}
-                                </p>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={handleResendOtp}
-                                    className="text-sm text-primary font-bold hover:underline flex items-center justify-center gap-2 mx-auto"
-                                >
-                                    <RefreshCw className="w-3 h-3" /> Resend Code
-                                </button>
-                            )}
+                    )}
+                    {!isLogin && (
+                        <div className="relative">
+                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-ashWhite/50 w-5 h-5" />
+                            <input
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                type="tel"
+                                placeholder="Phone Number (07XXXXXXXX)"
+                                pattern="^(\+94|0)7\d{8}$"
+                                title="Please enter a valid Sri Lankan phone number (07XXXXXXXX or +947XXXXXXXX)"
+                                className="w-full bg-charcoalBlack border border-cardBorder rounded-xl pl-12 pr-4 py-3 text-ashWhite focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                            />
                         </div>
-                        <button type="button" onClick={() => setStep('details')} className="w-full text-sm text-ashWhite/50 hover:text-ashWhite mt-2">
-                            Back to Details
-                        </button>
-                    </form>
-                ) : (
-                    <>
-                        {/* Social Auth and Divider only on Login or details step */}
-                        <div className="space-y-4 mb-6">
-                            <button
-                                onClick={async () => {
-                                    const success = await loginWithGoogle();
-                                    if (success) {
-                                        if (onSuccess) onSuccess();
-                                        onClose();
-                                    }
-                                }}
-                                className="w-full bg-white text-black font-bold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-100 transition-colors"
+                    )}
+                    <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ashWhite/50 w-5 h-5" />
+                        <input
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            type="email"
+                            placeholder="Email Address"
+                            required
+                            className="w-full bg-charcoalBlack border border-cardBorder rounded-xl pl-12 pr-4 py-3 text-ashWhite focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                        />
+                    </div>
+                    <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-ashWhite/50 w-5 h-5" />
+                        <input
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            type="password"
+                            placeholder="Password"
+                            required
+                            className="w-full bg-charcoalBlack border border-cardBorder rounded-xl pl-12 pr-4 py-3 text-ashWhite focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                        />
+                    </div>
+
+                    {isLogin && (
+                        <div className="text-right">
+                            <Link
+                                href="/forgot-password"
+                                onClick={onClose}
+                                className="text-sm text-ashWhite/60 hover:text-primary transition-colors"
                             >
-                                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
-                                Continue with Google
-                            </button>
-
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <span className="w-full border-t border-cardBorder"></span>
-                                </div>
-                                <div className="relative flex justify-center text-xs uppercase">
-                                    <span className="bg-softBlack px-2 text-ashWhite/40">Or continue with email</span>
-                                </div>
-                            </div>
+                                Forgot Password?
+                            </Link>
                         </div>
+                    )}
 
-                        <form onSubmit={handleAuthAction} className="space-y-4">
-                            {!isLogin && (
-                                <div className="relative">
-                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-ashWhite/50 w-5 h-5" />
-                                    <input
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        type="text"
-                                        placeholder="Full Name"
-                                        className="w-full bg-charcoalBlack border border-cardBorder rounded-xl pl-12 pr-4 py-3 text-ashWhite focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                                    />
-                                </div>
-                            )}
-                            <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ashWhite/50 w-5 h-5" />
-                                <input
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    type="email"
-                                    placeholder="Email Address"
-                                    className="w-full bg-charcoalBlack border border-cardBorder rounded-xl pl-12 pr-4 py-3 text-ashWhite focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                                />
-                            </div>
-                            <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-ashWhite/50 w-5 h-5" />
-                                <input
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    type="password"
-                                    placeholder="Password"
-                                    className="w-full bg-charcoalBlack border border-cardBorder rounded-xl pl-12 pr-4 py-3 text-ashWhite focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                                />
-                            </div>
-
-                            {isLogin && (
-                                <div className="text-right">
-                                    <Link
-                                        href="/forgot-password"
-                                        onClick={onClose}
-                                        className="text-sm text-ashWhite/60 hover:text-primary transition-colors"
-                                    >
-                                        Forgot Password?
-                                    </Link>
-                                </div>
-                            )}
-
-                            <button disabled={isVerifying} type="submit" className="w-full btn btn-lg bg-primary hover:bg-primaryHover text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2 mt-6 disabled:opacity-50">
-                                {isVerifying ? 'Processing...' : (isLogin ? 'Login & Continue' : 'Sign Up & Continue')}
-                                <ArrowRight className="w-5 h-5" />
-                            </button>
-                        </form>
-                    </>
-                )}
+                    <button disabled={isLoading} type="submit" className="w-full btn btn-lg bg-primary hover:bg-primaryHover text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2 mt-6 disabled:opacity-50">
+                        {isLoading ? 'Processing...' : (isLogin ? 'Login & Continue' : 'Sign Up & Continue')}
+                        <ArrowRight className="w-5 h-5" />
+                    </button>
+                </form>
 
                 <div className="text-center mt-6 text-ashWhite/70 text-sm">
                     {isLogin ? "Don't have an account? " : "Already have an account? "}

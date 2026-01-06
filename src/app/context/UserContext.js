@@ -87,22 +87,17 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    const register = async (name, email, password) => {
+    const register = async (name, email, password, phone) => {
         if (!name || !email || !password) {
             toast.error("All fields are required");
             return { success: false };
         }
 
         try {
-            const response = await authService.register(email, password, name);
+            const response = await authService.register(email, password, name, phone);
             if (response.success) {
-                // Check if verification is required (it should be)
-                if (response.data.requireVerification) {
-                    return { success: true, requireVerification: true };
-                }
-
-                setUser(response.data.user);
-                toast.success(`Welcome to CheezyBite!`);
+                // User is created as Active and verified - can login immediately
+                toast.success('Account created successfully!');
                 return { success: true };
             }
         } catch (error) {
@@ -154,10 +149,10 @@ export const UserProvider = ({ children }) => {
             }
         } catch (error) {
             console.error("Update profile error:", error);
-            
+
             // Better error handling
             let errorMessage = "Failed to update profile";
-            
+
             if (error.response?.status === 400) {
                 errorMessage = error.response?.data?.message || "Please check your information";
             } else if (error.response?.status === 401) {
@@ -165,7 +160,7 @@ export const UserProvider = ({ children }) => {
             } else if (error.message) {
                 errorMessage = error.message;
             }
-            
+
             toast.error(errorMessage);
         }
     };
